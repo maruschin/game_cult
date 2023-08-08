@@ -11,24 +11,34 @@ impl Plugin for DungeonPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(DirectionalLightShadowMap { size: 512 })
             .add_systems(Startup, setup)
-            .add_systems(Update, rotate_camera);
+            .add_systems(Update, (gizmos_system, rotate_camera));
     }
 }
 
-fn setup(
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
-) {
+fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn(Camera3dBundle {
-        transform: Transform::from_xyz(0., 6.0, 24.).looking_at(Vec3::ZERO, Vec3::Y),
+        transform: Transform::from_xyz(0., 18.0, 24.).looking_at(Vec3::ZERO, Vec3::Y),
         ..default()
     });
+
     // floor
-    commands.spawn(SceneBundle {
-        scene: asset_server.load("models/floorDecoration_tilesLarge.gltf.glb#Scene0"),
-        transform: Transform::from_xyz(0.0, 0.0, 0.0),
-        ..default()
-    });
+    for x_idx in -1..2 {
+        for z_idx in -1..2 {
+            commands.spawn(SceneBundle {
+                scene: asset_server.load("models/tileBrickB_medium.gltf.glb#Scene0"),
+                transform: Transform::from_xyz((x_idx * 4) as f32, -1.0, (z_idx * 4) as f32),
+                ..default()
+            });
+        }
+    }
+
+    for x_idx in -1..2 {
+        commands.spawn(SceneBundle {
+            scene: asset_server.load("models/wall_gate.gltf.glb#Scene0"),
+            transform: Transform::from_xyz((x_idx * 4) as f32, 0.0, 6.0),
+            ..default()
+        });
+    }
 
     // barrel
     commands.spawn(SceneBundle {
@@ -50,6 +60,18 @@ fn setup(
         },
         ..default()
     });
+}
+
+fn gizmos_system(mut gizmos: Gizmos) {
+    for x_idx in -5..6 {
+        for z_idx in -5..6 {
+            gizmos.cuboid(
+                Transform::from_xyz((x_idx * 4) as f32, 2.0, (z_idx * 4) as f32)
+                    .with_scale(Vec3::splat(4.)),
+                Color::BLACK,
+            );
+        }
+    }
 }
 
 fn rotate_camera(mut query: Query<&mut Transform, With<Camera>>, time: Res<Time>) {
