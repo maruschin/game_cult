@@ -3,6 +3,7 @@ mod prelude {
     pub use bevy::prelude::*;
 }
 
+use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use dungeon::DungeonPlugin;
 use prelude::*;
 
@@ -15,6 +16,8 @@ fn main() {
             }),
             ..default()
         }))
+        .add_plugins(LogDiagnosticsPlugin::default())
+        .add_plugins(FrameTimeDiagnosticsPlugin::default())
         .add_plugins(DungeonPlugin)
         .run();
 }
