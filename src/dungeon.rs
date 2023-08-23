@@ -2,7 +2,7 @@
 
 mod map;
 
-use map::{idx_xy, new_map, TileType};
+use map::{new_map, TileType};
 
 use bevy::pbr::DirectionalLightShadowMap;
 use bevy::prelude::*;
@@ -21,6 +21,13 @@ impl Plugin for DungeonPlugin {
     }
 }
 
+pub fn idx_xy(idx: usize) -> (i32, i32) {
+    (
+        (idx as i32) / (DUNGEON_WIDE as i32),
+        (idx as i32) % (DUNGEON_WIDE as i32),
+    )
+}
+
 fn setup(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
@@ -32,10 +39,13 @@ fn setup(
         ..default()
     });
 
-    for (idx, tile) in new_map().iter().enumerate() {
-        let (x, y) = idx_xy(idx);
+    for ((x, y), tile) in new_map()
+        .iter()
+        .enumerate()
+        .map(|(idx, tile)| (idx_xy(idx), tile))
+    {
         match tile {
-            TileType::Wall => {
+            | TileType::Wall => {
                 commands.spawn(PbrBundle {
                     mesh: meshes.add(Mesh::from(shape::Cube { size: 4.0 })),
                     material: materials.add(Color::rgb(0., 0., 0.).into()),
@@ -43,7 +53,7 @@ fn setup(
                     ..default()
                 });
             }
-            TileType::Floor => {
+            | TileType::Floor => {
                 commands.spawn(SceneBundle {
                     scene: asset_server.load("models/tileBrickB_medium.gltf.glb#Scene0"),
                     transform: Transform::from_xyz((x * 4) as f32, -1.0, (y * 4) as f32),

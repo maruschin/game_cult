@@ -1,0 +1,5 @@
+edition = "2021"
+newline_style = "Unix"
+match_arm_leading_pipes = "Always"
+use_field_init_shorthand = true
+use_try_shorthand = true
