@@ -1,6 +1,6 @@
 use core::iter::Enumerate;
-use core::iter::Map;
 use core::slice::Iter;
+
 // Структура в виде вектора копируемых объектов создана для реализации логического слоя карты.
 // Какие объекты там расположены, видима ли карта для игрока, исследована ли она им и т.д.
 #[derive(Debug)]
@@ -26,7 +26,7 @@ where
         (x * self.height) + y
     }
 
-    fn idx_to_xy(&self, idx: usize) -> (i32, i32) {
+    pub fn idx_to_xy(&self, idx: usize) -> (i32, i32) {
         (
             (idx as i32) / (self.width as i32),
             (idx as i32) % (self.width as i32),
@@ -42,7 +42,7 @@ where
         self.map[self.xy_to_idx(x, y)]
     }
 
-    pub fn iter(&self) -> Iter<'_, T> {
-        self.map.iter()
+    pub fn iter(&self) -> Enumerate<Iter<'_, T>> {
+        self.map.iter().enumerate()
     }
 }

@@ -39,8 +39,9 @@ fn setup(
         ..default()
     });
 
-    for (x, y, tile) in new_map().iter().enumerate().map(|(idx, tile)| {
-        let (x, y) = idx_xy(idx);
+    let room_layer = new_map();
+    for (x, y, tile) in room_layer.iter().map(|(idx, tile)| {
+        let (x, y) = room_layer.idx_to_xy(idx);
         (x, y, tile)
     }) {
         match tile {
