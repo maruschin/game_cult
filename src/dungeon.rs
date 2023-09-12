@@ -39,11 +39,10 @@ fn setup(
         ..default()
     });
 
-    for ((x, y), tile) in new_map()
-        .iter()
-        .enumerate()
-        .map(|(idx, tile)| (idx_xy(idx), tile))
-    {
+    for (x, y, tile) in new_map().iter().enumerate().map(|(idx, tile)| {
+        let (x, y) = idx_xy(idx);
+        (x, y, tile)
+    }) {
         match tile {
             | TileType::Wall => {
                 commands.spawn(PbrBundle {
