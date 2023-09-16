@@ -2,4 +2,5 @@
 pub enum TileType {
     Wall,
     Floor,
+    Path,
 }

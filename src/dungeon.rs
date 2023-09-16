@@ -52,6 +52,17 @@ fn setup(
                     ..default()
                 });
             }
+            | TileType::Path => {
+                commands.spawn(SceneBundle {
+                    scene: asset_server.load("models/tileBrickA_medium.gltf.glb#Scene0"),
+                    transform: Transform::from_xyz(
+                        (width_coord * 4) as f32,
+                        -1.0,
+                        (length_coord * 4) as f32,
+                    ),
+                    ..default()
+                });
+            }
             | TileType::Floor => {
                 commands.spawn(SceneBundle {
                     scene: asset_server.load("models/tileBrickB_medium.gltf.glb#Scene0"),

@@ -16,7 +16,7 @@ pub struct Map {
 
 impl Map {
     pub fn new() -> Self {
-        const MAX_ROOMS: i32 = 4;
+        const MAX_ROOMS: i32 = 6;
         let room_layer = RoomLayer::new(
             DUNGEON_WIDTH as usize,
             DUNGEON_LENGTH as usize,

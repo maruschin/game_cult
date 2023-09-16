@@ -26,7 +26,7 @@ impl Room {
         let max_width = max(self.width, other.width);
         let max_length = max(self.length, other.length);
 
-        diff_width_coord < max_width && diff_length_coord < max_length
+        diff_width_coord <= max_width && diff_length_coord <= max_length
     }
 
     pub fn center(&self) -> (i32, i32) {
@@ -62,7 +62,9 @@ pub fn apply_width_tunnel(
     length_coord: i32,
 ) {
     for width_coord in min(width_coord_1, width_coord_2)..=max(width_coord_1, width_coord_2) {
-        map.set(width_coord as usize, length_coord as usize, TileType::Floor);
+        if map.get(width_coord as usize, length_coord as usize) == TileType::Wall {
+            map.set(width_coord as usize, length_coord as usize, TileType::Path);
+        }
     }
 }
 
@@ -73,7 +75,9 @@ pub fn apply_length_tunnel(
     length_coord_2: i32,
 ) {
     for length_coord in min(length_coord_1, length_coord_2)..=max(length_coord_1, length_coord_2) {
-        map.set(width_coord as usize, length_coord as usize, TileType::Floor);
+        if map.get(width_coord as usize, length_coord as usize) == TileType::Wall {
+            map.set(width_coord as usize, length_coord as usize, TileType::Path);
+        }
     }
 }
 
@@ -86,18 +90,18 @@ fn get_random_room(
 ) -> Room {
     let width = rng.gen_range(min_size..=max_size);
     let length = rng.gen_range(min_size..=max_size);
-    let width_coord = rng.gen_range(1..(max_width_coord - width)) - 1;
-    let length_coord = rng.gen_range(1..(max_length_coord - length)) - 1;
+    let width_coord = rng.gen_range(2..(max_width_coord - width)) - 1;
+    let length_coord = rng.gen_range(2..(max_length_coord - length)) - 1;
     Room::new(width_coord, length_coord, width, length)
 }
 
 pub fn generate_rooms(layer_width: usize, layer_length: usize, room_amount: usize) -> Vec<Room> {
     let mut rooms: Vec<Room> = Vec::new();
-    const MIN_SIZE: i32 = 4;
-    const MAX_SIZE: i32 = 6;
+    const MIN_SIZE: i32 = 3;
+    const MAX_SIZE: i32 = 4;
 
     let mut rng = rand::thread_rng();
-    for _ in 0..room_amount {
+    for _ in 0..room_amount * 4 {
         let new_room = get_random_room(
             &mut rng,
             layer_width as i32,

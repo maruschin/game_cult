@@ -37,6 +37,11 @@ where
         self.map[idx] = value;
     }
 
+    pub fn get(&mut self, width_coord: usize, length_coord: usize) -> T {
+        let idx = self.wide_and_length_coord_to_idx(width_coord, length_coord);
+        self.map[idx]
+    }
+
     pub fn iter(&self) -> Iter<'_, T> {
         self.map.iter()
     }
