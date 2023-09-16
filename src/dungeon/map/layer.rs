@@ -1,4 +1,3 @@
-use core::iter::Enumerate;
 use core::slice::Iter;
 
 // Структура в виде вектора копируемых объектов создана для реализации логического слоя карты.
@@ -42,7 +41,7 @@ where
         self.map[self.xy_to_idx(x, y)]
     }
 
-    pub fn iter(&self) -> Enumerate<Iter<'_, T>> {
-        self.map.iter().enumerate()
+    pub fn iter(&self) -> Iter<'_, T> {
+        self.map.iter()
     }
 }

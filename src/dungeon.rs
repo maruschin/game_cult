@@ -2,7 +2,7 @@
 
 mod map;
 
-use map::{new_map, TileType};
+use map::{Map, TileType};
 
 use bevy::pbr::DirectionalLightShadowMap;
 use bevy::prelude::*;
@@ -21,13 +21,6 @@ impl Plugin for DungeonPlugin {
     }
 }
 
-pub fn idx_xy(idx: usize) -> (i32, i32) {
-    (
-        (idx as i32) / (DUNGEON_WIDE as i32),
-        (idx as i32) % (DUNGEON_WIDE as i32),
-    )
-}
-
 fn setup(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
@@ -39,9 +32,9 @@ fn setup(
         ..default()
     });
 
-    let room_layer = new_map();
-    for (x, y, tile) in room_layer.iter().map(|(idx, tile)| {
-        let (x, y) = room_layer.idx_to_xy(idx);
+    let Map { room_layer } = Map::new();
+    for (x, y, tile) in room_layer.layer.iter().enumerate().map(|(idx, tile)| {
+        let (x, y) = room_layer.layer.idx_to_xy(idx);
         (x, y, tile)
     }) {
         match tile {
