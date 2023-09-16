@@ -8,7 +8,7 @@ use bevy::pbr::DirectionalLightShadowMap;
 use bevy::prelude::*;
 use std::f32::consts::PI;
 
-use self::map::{DUNGEON_HEIGHT, DUNGEON_WIDE};
+use self::map::{DUNGEON_LENGTH, DUNGEON_WIDTH};
 
 /// Просто плагин
 pub struct DungeonPlugin;
@@ -33,23 +33,33 @@ fn setup(
     });
 
     let Map { room_layer } = Map::new();
-    for (x, y, tile) in room_layer.layer.iter().enumerate().map(|(idx, tile)| {
-        let (x, y) = room_layer.layer.idx_to_xy(idx);
-        (x, y, tile)
-    }) {
+    for (width_coord, length_coord, tile) in
+        room_layer.layer.iter().enumerate().map(|(idx, tile)| {
+            let (width_coord, length_coord) = room_layer.layer.idx_to_width_and_length_coord(idx);
+            (width_coord, length_coord, tile)
+        })
+    {
         match tile {
             | TileType::Wall => {
                 commands.spawn(PbrBundle {
                     mesh: meshes.add(Mesh::from(shape::Cube { size: 4.0 })),
                     material: materials.add(Color::rgb(0., 0., 0.).into()),
-                    transform: Transform::from_xyz((x * 4) as f32, 2.0, (y * 4) as f32),
+                    transform: Transform::from_xyz(
+                        (width_coord * 4) as f32,
+                        2.0,
+                        (length_coord * 4) as f32,
+                    ),
                     ..default()
                 });
             }
             | TileType::Floor => {
                 commands.spawn(SceneBundle {
                     scene: asset_server.load("models/tileBrickB_medium.gltf.glb#Scene0"),
-                    transform: Transform::from_xyz((x * 4) as f32, -1.0, (y * 4) as f32),
+                    transform: Transform::from_xyz(
+                        (width_coord * 4) as f32,
+                        -1.0,
+                        (length_coord * 4) as f32,
+                    ),
                     ..default()
                 });
             }
@@ -57,11 +67,18 @@ fn setup(
     }
 
     // barrel
-    commands.spawn(SceneBundle {
-        scene: asset_server.load("models/barrel.gltf.glb#Scene0"),
-        transform: Transform::from_xyz(0.0, 0.5, 0.0),
-        ..default()
-    });
+    for room in room_layer.rooms.iter() {
+        let (width_coord, length_coord) = room.center();
+        commands.spawn(SceneBundle {
+            scene: asset_server.load("models/barrel.gltf.glb#Scene0"),
+            transform: Transform::from_xyz(
+                (width_coord * 4) as f32,
+                0.5,
+                (length_coord * 4) as f32,
+            ),
+            ..default()
+        });
+    }
     // light
     commands.spawn(DirectionalLightBundle {
         directional_light: DirectionalLight {
@@ -79,10 +96,10 @@ fn setup(
 }
 
 fn gizmos_system(mut gizmos: Gizmos) {
-    for x_idx in 0..DUNGEON_HEIGHT {
-        for z_idx in 0..DUNGEON_WIDE {
+    for width_coord in 0..DUNGEON_WIDTH {
+        for length_coord in 0..DUNGEON_LENGTH {
             gizmos.cuboid(
-                Transform::from_xyz((x_idx * 4) as f32, 2.0, (z_idx * 4) as f32)
+                Transform::from_xyz((width_coord * 4) as f32, 2.0, (length_coord * 4) as f32)
                     .with_scale(Vec3::splat(4.)),
                 Color::BLACK,
             );

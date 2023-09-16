@@ -1,5 +1,5 @@
 use super::room::{
-    apply_horizontal_tunnel, apply_room_to_map, apply_vertical_tunnel, generate_rooms, Room,
+    apply_length_tunnel, apply_room_to_map, apply_width_tunnel, generate_rooms, Room,
 };
 use super::{Layer, TileType};
 
@@ -10,27 +10,47 @@ pub struct RoomLayer {
 }
 
 impl RoomLayer {
-    pub fn new(width: usize, height: usize, room_amount: usize) -> RoomLayer {
-        let mut layer = Layer::new(TileType::Wall, width, height);
-        let rooms = generate_rooms(width, height, room_amount);
+    pub fn new(width: usize, length: usize, room_amount: usize) -> RoomLayer {
+        let mut layer = Layer::new(TileType::Wall, width, length);
+        let rooms = generate_rooms(width, length, room_amount);
 
         let mut rng = rand::thread_rng();
 
-        let mut prev_x: i32 = 0;
-        let mut prev_y: i32 = 0;
+        let mut prev_width_coord: i32 = 0;
+        let mut prev_length_coord: i32 = 0;
 
         for room in rooms.iter() {
             apply_room_to_map(&mut layer, &room);
 
-            let (new_x, new_y) = room.center();
+            let (new_width_coord, new_length_coord) = room.center();
             if rng.gen_range(1..=2) == 1 {
-                apply_horizontal_tunnel(&mut layer, prev_x, new_x, prev_y);
-                apply_vertical_tunnel(&mut layer, prev_y, new_y, new_x);
+                apply_width_tunnel(
+                    &mut layer,
+                    prev_width_coord,
+                    new_width_coord,
+                    prev_length_coord,
+                );
+                apply_length_tunnel(
+                    &mut layer,
+                    new_width_coord,
+                    prev_length_coord,
+                    new_length_coord,
+                );
             } else {
-                apply_vertical_tunnel(&mut layer, prev_y, new_y, prev_x);
-                apply_horizontal_tunnel(&mut layer, prev_x, new_x, new_y);
+                apply_length_tunnel(
+                    &mut layer,
+                    prev_width_coord,
+                    prev_length_coord,
+                    new_length_coord,
+                );
+                apply_width_tunnel(
+                    &mut layer,
+                    prev_width_coord,
+                    new_width_coord,
+                    new_length_coord,
+                );
             }
-            (prev_x, prev_y) = (new_x, new_y);
+            (prev_width_coord, prev_length_coord) = (new_width_coord, new_length_coord);
         }
 
         RoomLayer { layer, rooms }
