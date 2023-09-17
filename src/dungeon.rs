@@ -8,7 +8,7 @@ use bevy::pbr::DirectionalLightShadowMap;
 use bevy::prelude::*;
 use std::f32::consts::PI;
 
-use self::map::{DUNGEON_LENGTH, DUNGEON_WIDTH};
+use self::map::{DUNGEON_COLUMN, DUNGEON_ROW};
 
 /// Просто плагин
 pub struct DungeonPlugin;
@@ -62,14 +62,10 @@ fn setup(
 
     // barrel
     for room in room_layer.rooms.iter() {
-        let (width_coord, length_coord) = room.center();
+        let (i, j) = room.center();
         commands.spawn(SceneBundle {
             scene: asset_server.load("models/barrel.gltf.glb#Scene0"),
-            transform: Transform::from_xyz(
-                (width_coord * 4) as f32,
-                0.5,
-                (length_coord * 4) as f32,
-            ),
+            transform: Transform::from_xyz((i * 4) as f32, 0.5, (j * 4) as f32),
             ..default()
         });
     }
@@ -90,10 +86,10 @@ fn setup(
 }
 
 fn gizmos_system(mut gizmos: Gizmos) {
-    for width_coord in 0..DUNGEON_WIDTH {
-        for length_coord in 0..DUNGEON_LENGTH {
+    for i in 0..DUNGEON_ROW {
+        for j in 0..DUNGEON_COLUMN {
             gizmos.cuboid(
-                Transform::from_xyz((width_coord * 4) as f32, 2.0, (length_coord * 4) as f32)
+                Transform::from_xyz((i * 4) as f32, 2.0, (j * 4) as f32)
                     .with_scale(Vec3::splat(4.)),
                 Color::BLACK,
             );

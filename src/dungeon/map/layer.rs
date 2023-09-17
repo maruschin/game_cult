@@ -10,35 +10,34 @@ use std::iter::{zip, Zip};
 pub struct Layer<T: Copy> {
     tiles: Matrix<T>,
     coordinates: Matrix<(f32, f32)>,
-    width: usize,
-    length: usize,
-    scale: f32,
+    pub row: usize,
+    pub column: usize,
+    pub scale: f32,
 }
 
 impl<T> Layer<T>
 where
     T: Copy,
 {
-    pub fn new(default: T, width: usize, length: usize, scale: f32) -> Layer<T> {
-        let tiles = Matrix::from_vec(width, length, vec![default; width * length]);
-        let coordinates = Matrix::from_fn(width, length, |i, j| {
-            ((i as f32) * scale, (j as f32) * scale)
-        });
+    pub fn new(default: T, row: usize, column: usize, scale: f32) -> Layer<T> {
+        let tiles = Matrix::from_vec(row, column, vec![default; row * column]);
+        let coordinates =
+            Matrix::from_fn(row, column, |i, j| ((i as f32) * scale, (j as f32) * scale));
         Layer {
             tiles,
             coordinates,
-            width,
-            length,
+            row,
+            column,
             scale,
         }
     }
 
-    pub fn set(&mut self, width_coord: usize, length_coord: usize, value: T) {
-        self.tiles[(width_coord, length_coord)] = value;
+    pub fn set(&mut self, i: usize, j: usize, value: T) {
+        self.tiles[(i, j)] = value;
     }
 
-    pub fn get(&mut self, width_coord: usize, length_coord: usize) -> T {
-        self.tiles[(width_coord, length_coord)]
+    pub fn get(&mut self, i: usize, j: usize) -> T {
+        self.tiles[(i, j)]
     }
 
     pub fn iter(&self) -> Zip<Iter<'_, (f32, f32)>, Iter<'_, T>> {
