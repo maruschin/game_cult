@@ -11,7 +11,7 @@ pub struct RoomLayer {
 
 impl RoomLayer {
     pub fn new(width: usize, length: usize, room_amount: usize) -> RoomLayer {
-        let mut layer = Layer::new(TileType::Wall, width, length);
+        let mut layer = Layer::new(TileType::Wall, width, length, 4.);
         let rooms = generate_rooms(width, length, room_amount);
 
         let mut rng = rand::thread_rng();

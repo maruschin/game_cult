@@ -33,44 +33,27 @@ fn setup(
     });
 
     let Map { room_layer } = Map::new();
-    for (width_coord, length_coord, tile) in
-        room_layer.layer.iter().enumerate().map(|(idx, tile)| {
-            let (width_coord, length_coord) = room_layer.layer.idx_to_width_and_length_coord(idx);
-            (width_coord, length_coord, tile)
-        })
-    {
+    for ((x, z), tile) in room_layer.layer.iter() {
         match tile {
             | TileType::Wall => {
                 commands.spawn(PbrBundle {
                     mesh: meshes.add(Mesh::from(shape::Cube { size: 4.0 })),
                     material: materials.add(Color::rgb(0., 0., 0.).into()),
-                    transform: Transform::from_xyz(
-                        (width_coord * 4) as f32,
-                        2.0,
-                        (length_coord * 4) as f32,
-                    ),
+                    transform: Transform::from_xyz(*x, 2.0, *z),
                     ..default()
                 });
             }
             | TileType::Path => {
                 commands.spawn(SceneBundle {
                     scene: asset_server.load("models/tileBrickA_medium.gltf.glb#Scene0"),
-                    transform: Transform::from_xyz(
-                        (width_coord * 4) as f32,
-                        -1.0,
-                        (length_coord * 4) as f32,
-                    ),
+                    transform: Transform::from_xyz(*x, -1.0, *z),
                     ..default()
                 });
             }
             | TileType::Floor => {
                 commands.spawn(SceneBundle {
                     scene: asset_server.load("models/tileBrickB_medium.gltf.glb#Scene0"),
-                    transform: Transform::from_xyz(
-                        (width_coord * 4) as f32,
-                        -1.0,
-                        (length_coord * 4) as f32,
-                    ),
+                    transform: Transform::from_xyz(*x, -1.0, *z),
                     ..default()
                 });
             }

@@ -1,5 +1,6 @@
 mod enums;
 mod layer;
+mod matrix;
 mod room;
 mod room_layer;
 
