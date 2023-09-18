@@ -18,8 +18,8 @@ impl Room {
     pub fn intersect(&self, other: &Room) -> bool {
         let diff_i = (self.i - other.i).abs() * 2;
         let diff_j = (self.j - other.j).abs() * 2;
-        let rooms_row = self.row + other.row + 2;
-        let rooms_column = self.column + other.column + 2;
+        let rooms_row = self.row + other.row;
+        let rooms_column = self.column + other.column;
 
         diff_i <= rooms_row && diff_j <= rooms_column
     }
