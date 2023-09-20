@@ -42,23 +42,23 @@ impl fmt::Display for Room {
 pub fn apply_room_to_map(layer: &mut Layer<TileType>, room: &Room) {
     for i in room.i..=room.i + room.row {
         for j in room.j..=room.j + room.column {
-            layer.set(i as usize, j as usize, TileType::Floor);
+            layer[(i as usize, j as usize)] = TileType::Floor;
         }
     }
 }
 
 pub fn apply_row_tunnel(layer: &mut Layer<TileType>, i1: i32, i2: i32, j: i32) {
     for i in min(i1, i2)..=max(i1, i2) {
-        if layer.get(i as usize, j as usize) == TileType::Wall {
-            layer.set(i as usize, j as usize, TileType::Path);
+        if layer[(i as usize, j as usize)] == TileType::Wall {
+            layer[(i as usize, j as usize)] = TileType::Path;
         }
     }
 }
 
 pub fn apply_column_tunnel(layer: &mut Layer<TileType>, i: i32, j1: i32, j2: i32) {
     for j in min(j1, j2)..=max(j1, j2) {
-        if layer.get(i as usize, j as usize) == TileType::Wall {
-            layer.set(i as usize, j as usize, TileType::Path);
+        if layer[(i as usize, j as usize)] == TileType::Wall {
+            layer[(i as usize, j as usize)] = TileType::Path;
         }
     }
 }
