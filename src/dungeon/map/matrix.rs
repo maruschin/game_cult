@@ -15,9 +15,9 @@ use std::slice::Iter;
 /// 2D matrix.
 #[derive(PartialEq, Eq, Clone, Debug, Hash)]
 pub struct Matrix<T> {
-    row: usize,
-    column: usize,
-    data: Vec<T>,
+    pub row: usize,
+    pub column: usize,
+    pub data: Vec<T>,
 }
 
 #[allow(dead_code)]

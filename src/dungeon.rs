@@ -33,7 +33,7 @@ fn setup(
     });
 
     let Map { room_layer } = Map::new();
-    for ((x, z), tile) in room_layer.layer.iter() {
+    for (x, z, tile) in room_layer.layer.iter() {
         match tile {
             | TileType::Wall => {
                 commands.spawn(PbrBundle {

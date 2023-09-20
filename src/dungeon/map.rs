@@ -4,6 +4,8 @@ mod matrix;
 mod room;
 mod room_layer;
 
+pub use matrix::Matrix;
+
 pub use enums::TileType;
 pub use layer::Layer;
 pub use room_layer::RoomLayer;
