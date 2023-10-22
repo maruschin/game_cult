@@ -36,7 +36,7 @@ fn setup(
     let Map { room_layer } = Map::<DUNGEON_ROW, DUNGEON_COLUMN>::new();
     for (x, z, tile) in room_layer.layer.iter() {
         match tile {
-            | TileType::Wall => {
+            | TileType::Empthy => {
                 commands.spawn(PbrBundle {
                     mesh: meshes.add(Mesh::from(shape::Cube { size: 4.0 })),
                     material: materials.add(Color::rgb(0., 0., 0.).into()),
@@ -58,6 +58,7 @@ fn setup(
                     ..default()
                 });
             }
+            | _ => {}
         }
     }
 

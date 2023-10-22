@@ -1,6 +1,5 @@
 mod enums;
 mod layer;
-mod room;
 mod room_layer;
 
 pub use enums::TileType;

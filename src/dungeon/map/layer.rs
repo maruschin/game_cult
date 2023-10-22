@@ -1,7 +1,5 @@
 use std::ops::{Index, IndexMut};
 
-// Структура в виде вектора копируемых объектов создана для реализации логического слоя карты.
-// Какие объекты там расположены, видима ли карта для игрока, исследована ли она им и т.д.
 #[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub struct Layer<T, const ROW: usize, const COLUMN: usize> {
@@ -73,6 +71,63 @@ impl<'a, T, const ROW: usize, const COLUMN: usize> Iterator for LayerIterator<'a
                 self.i += 1;
             }
             Some((x, y, tile))
+        } else {
+            None
+        }
+    }
+}
+
+pub struct LayerWindows<
+    'a,
+    T,
+    const ROW: usize,
+    const COLUMN: usize,
+    const WINDOW_ROW: usize,
+    const WINDOW_COLUMN: usize,
+> where
+    T: 'a,
+{
+    layer: &'a Layer<T, ROW, COLUMN>,
+    i: usize,
+    j: usize,
+}
+
+impl<
+        T,
+        const ROW: usize,
+        const COLUMN: usize,
+        const WINDOW_ROW: usize,
+        const WINDOW_COLUMN: usize,
+    > LayerWindows<'_, T, ROW, COLUMN, WINDOW_ROW, WINDOW_COLUMN>
+{
+    fn new(
+        layer: &Layer<T, ROW, COLUMN>,
+    ) -> LayerWindows<'_, T, ROW, COLUMN, WINDOW_ROW, WINDOW_COLUMN> {
+        LayerWindows { layer, i: 0, j: 0 }
+    }
+}
+
+impl<
+        'a,
+        T: Copy,
+        const ROW: usize,
+        const COLUMN: usize,
+        const WINDOW_ROW: usize,
+        const WINDOW_COLUMN: usize,
+    > Iterator for LayerWindows<'a, T, ROW, COLUMN, WINDOW_ROW, WINDOW_COLUMN>
+{
+    type Item = [[&'a T; WINDOW_COLUMN]; WINDOW_ROW];
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.i < ROW - WINDOW_ROW + 1 && self.j < COLUMN - WINDOW_COLUMN + 1 {
+            let mut submatrix = [[&self.layer.data[0][0]; WINDOW_COLUMN]; WINDOW_ROW];
+            for i_window in 0..WINDOW_ROW {
+                for j_window in 0..WINDOW_COLUMN {
+                    submatrix[i_window][j_window] =
+                        &self.layer.data[self.i + i_window][self.j + j_window];
+                }
+            }
+            Some(submatrix)
         } else {
             None
         }

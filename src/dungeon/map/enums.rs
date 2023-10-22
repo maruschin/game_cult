@@ -1,6 +1,10 @@
 #[derive(PartialEq, Copy, Clone)]
 pub enum TileType {
-    Wall,
+    Empthy,
+    WallLeft,
+    WallRight,
+    WallTop,
+    WallBottom,
     Floor,
     Path,
 }
