@@ -1,27 +1,21 @@
 mod enums;
 mod layer;
-mod matrix;
 mod room;
 mod room_layer;
-
-pub use matrix::Matrix;
 
 pub use enums::TileType;
 pub use layer::Layer;
 pub use room_layer::RoomLayer;
 
-pub const DUNGEON_ROW: usize = 20;
-pub const DUNGEON_COLUMN: usize = 10;
-
-pub struct Map {
-    pub room_layer: RoomLayer,
+pub struct Map<const COLUMN: usize, const ROW: usize> {
+    pub room_layer: RoomLayer<COLUMN, ROW>,
 }
 
-impl Map {
+impl<const COLUMN: usize, const ROW: usize> Map<COLUMN, ROW> {
     pub fn new() -> Self {
         const ROOM_AMOUNT: usize = 6;
         const ROOM_LAYER_SCALE: f32 = 4.;
-        let room_layer = RoomLayer::new(DUNGEON_ROW, DUNGEON_COLUMN, ROOM_LAYER_SCALE, ROOM_AMOUNT);
+        let room_layer = RoomLayer::new(ROOM_LAYER_SCALE, ROOM_AMOUNT);
         Map { room_layer }
     }
 }

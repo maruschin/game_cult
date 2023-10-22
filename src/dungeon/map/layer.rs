@@ -4,81 +4,74 @@ use std::ops::{Index, IndexMut};
 // Какие объекты там расположены, видима ли карта для игрока, исследована ли она им и т.д.
 #[allow(dead_code)]
 #[derive(Debug, Clone)]
-pub struct Layer<T> {
-    data: Vec<T>,
-    pub row: usize,
-    pub column: usize,
+pub struct Layer<T, const ROW: usize, const COLUMN: usize> {
+    data: [[T; COLUMN]; ROW],
     pub scale: f32,
 }
 
-impl<T> Layer<T>
+impl<T, const ROW: usize, const COLUMN: usize> Layer<T, ROW, COLUMN>
 where
     T: Copy,
 {
-    pub fn new(default: T, row: usize, column: usize, scale: f32) -> Layer<T> {
-        let data = vec![default; row * column];
-        Layer {
-            data,
-            row,
-            column,
-            scale,
-        }
+    pub fn new(default: T, scale: f32) -> Layer<T, ROW, COLUMN> {
+        let data = [[default; COLUMN]; ROW];
+        Layer { data, scale }
     }
 }
 
-impl<T> Layer<T> {
-    pub fn get_coordiante_by_index(&self, index: usize) -> (f32, f32) {
-        let (i, j) = (index / self.column, index % self.column);
+impl<T, const ROW: usize, const COLUMN: usize> Layer<T, ROW, COLUMN> {
+    pub fn get_coordiante(&self, i: usize, j: usize) -> (f32, f32) {
         ((i as f32) * self.scale, (j as f32) * self.scale)
     }
 
-    pub fn len(&self) -> usize {
-        return self.data.len();
-    }
-
-    pub fn iter(&self) -> LayerIterator<'_, T> {
+    pub fn iter(&self) -> LayerIterator<'_, T, ROW, COLUMN> {
         LayerIterator::new(self)
     }
 }
 
-impl<T> Index<(usize, usize)> for Layer<T> {
+impl<T, const ROW: usize, const COLUMN: usize> Index<(usize, usize)> for Layer<T, ROW, COLUMN> {
     type Output = T;
 
     fn index(&self, (i, j): (usize, usize)) -> &T {
-        assert!(i < self.row && j < self.column);
-        &self.data[i * self.column + j]
+        assert!(i < ROW && j < COLUMN);
+        &self.data[i][j]
     }
 }
 
-impl<T> IndexMut<(usize, usize)> for Layer<T> {
+impl<T, const ROW: usize, const COLUMN: usize> IndexMut<(usize, usize)> for Layer<T, ROW, COLUMN> {
     fn index_mut(&mut self, (i, j): (usize, usize)) -> &mut T {
-        assert!(i < self.row && j < self.column);
-        &mut self.data[i * self.column + j]
+        assert!(i < ROW && j < COLUMN);
+        &mut self.data[i][j]
     }
 }
 
-pub struct LayerIterator<'a, T>
+pub struct LayerIterator<'a, T, const ROW: usize, const COLUMN: usize>
 where
     T: 'a,
 {
-    layer: &'a Layer<T>,
-    index: usize,
+    layer: &'a Layer<T, ROW, COLUMN>,
+    i: usize,
+    j: usize,
 }
 
-impl<T> LayerIterator<'_, T> {
-    fn new(layer: &Layer<T>) -> LayerIterator<'_, T> {
-        LayerIterator { layer, index: 0 }
+impl<T, const ROW: usize, const COLUMN: usize> LayerIterator<'_, T, ROW, COLUMN> {
+    fn new(layer: &Layer<T, ROW, COLUMN>) -> LayerIterator<'_, T, ROW, COLUMN> {
+        LayerIterator { layer, i: 0, j: 0 }
     }
 }
 
-impl<'a, T> Iterator for LayerIterator<'a, T> {
+impl<'a, T, const ROW: usize, const COLUMN: usize> Iterator for LayerIterator<'a, T, ROW, COLUMN> {
     type Item = (f32, f32, &'a T);
 
     fn next(&mut self) -> Option<Self::Item> {
-        if self.index < self.layer.len() {
-            let (x, y) = self.layer.get_coordiante_by_index(self.index);
-            let tile = &self.layer.data[self.index];
-            self.index += 1;
+        if self.i < ROW && self.j < COLUMN {
+            let (x, y) = self.layer.get_coordiante(self.i, self.j);
+            let tile = &self.layer.data[self.i][self.j];
+            self.j += 1;
+            if self.j == COLUMN && self.i < ROW {
+                self.j = 0;
+                self.i += 1;
+            }
             Some((x, y, tile))
         } else {
             None

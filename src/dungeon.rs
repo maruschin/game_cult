@@ -8,7 +8,8 @@ use bevy::pbr::DirectionalLightShadowMap;
 use bevy::prelude::*;
 use std::f32::consts::PI;
 
-use self::map::{DUNGEON_COLUMN, DUNGEON_ROW};
+pub const DUNGEON_ROW: usize = 20;
+pub const DUNGEON_COLUMN: usize = 10;
 
 /// Просто плагин
 pub struct DungeonPlugin;
@@ -32,7 +33,7 @@ fn setup(
         ..default()
     });
 
-    let Map { room_layer } = Map::new();
+    let Map { room_layer } = Map::<DUNGEON_ROW, DUNGEON_COLUMN>::new();
     for (x, z, tile) in room_layer.layer.iter() {
         match tile {
             | TileType::Wall => {

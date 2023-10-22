@@ -2,15 +2,15 @@ use super::room::{apply_column_tunnel, apply_room_to_map, apply_row_tunnel, gene
 use super::{Layer, TileType};
 
 use rand::Rng;
-pub struct RoomLayer {
-    pub layer: Layer<TileType>,
+pub struct RoomLayer<const ROW: usize, const COLUMN: usize> {
+    pub layer: Layer<TileType, ROW, COLUMN>,
     pub rooms: Vec<Room>,
 }
 
-impl RoomLayer {
-    pub fn new(row: usize, column: usize, scale: f32, room_amount: usize) -> RoomLayer {
-        let mut layer = Layer::new(TileType::Wall, row, column, scale);
-        let rooms = generate_rooms(layer.row, layer.column, room_amount);
+impl<const ROW: usize, const COLUMN: usize> RoomLayer<ROW, COLUMN> {
+    pub fn new(scale: f32, room_amount: usize) -> RoomLayer<ROW, COLUMN> {
+        let mut layer = Layer::new(TileType::Wall, scale);
+        let rooms = generate_rooms(ROW, COLUMN, room_amount);
 
         let mut rng = rand::thread_rng();
 
