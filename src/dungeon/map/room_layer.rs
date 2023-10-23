@@ -32,6 +32,30 @@ impl<const ROW: usize, const COLUMN: usize> RoomLayer<ROW, COLUMN> {
             (prev_i, prev_j) = (new_i, new_j);
         }
 
+        for el in layer.clone().windows_1x2() {
+            match el {
+                | (i, j, [[TileType::Empthy, TileType::Floor]]) => {
+                    layer[(i, j)] = TileType::WallLeft
+                }
+                | (i, j, [[TileType::Floor, TileType::Empthy]]) => {
+                    layer[(i, j + 1)] = TileType::WallRight
+                }
+                | _ => {}
+            }
+        }
+
+        for el in layer.clone().windows_2x1() {
+            match el {
+                | (i, j, [[TileType::Empthy], [TileType::Floor]]) => {
+                    layer[(i, j)] = TileType::WallBottom
+                }
+                | (i, j, [[TileType::Floor], [TileType::Empthy]]) => {
+                    layer[(i + 1, j)] = TileType::WallTop
+                }
+                | _ => {}
+            }
+        }
+
         RoomLayer { layer, rooms }
     }
 }

@@ -1,7 +1,7 @@
 use std::ops::{Index, IndexMut};
 
 #[allow(dead_code)]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Layer<T, const ROW: usize, const COLUMN: usize> {
     data: [[T; COLUMN]; ROW],
     pub scale: f32,
@@ -22,8 +22,24 @@ impl<T, const ROW: usize, const COLUMN: usize> Layer<T, ROW, COLUMN> {
         ((i as f32) * self.scale, (j as f32) * self.scale)
     }
 
+    pub fn row(&self) -> usize {
+        ROW
+    }
+
+    pub fn column(&self) -> usize {
+        COLUMN
+    }
+
     pub fn iter(&self) -> LayerIterator<'_, T, ROW, COLUMN> {
         LayerIterator::new(self)
+    }
+
+    pub fn windows_2x1(&self) -> LayerWindows<'_, T, ROW, COLUMN, 2, 1> {
+        LayerWindows::new(self)
+    }
+
+    pub fn windows_1x2(&self) -> LayerWindows<'_, T, ROW, COLUMN, 1, 2> {
+        LayerWindows::new(self)
     }
 }
 
@@ -116,20 +132,75 @@ impl<
         const WINDOW_COLUMN: usize,
     > Iterator for LayerWindows<'a, T, ROW, COLUMN, WINDOW_ROW, WINDOW_COLUMN>
 {
-    type Item = [[&'a T; WINDOW_COLUMN]; WINDOW_ROW];
+    type Item = (usize, usize, [[&'a T; WINDOW_COLUMN]; WINDOW_ROW]);
 
     fn next(&mut self) -> Option<Self::Item> {
-        if self.i < ROW - WINDOW_ROW + 1 && self.j < COLUMN - WINDOW_COLUMN + 1 {
-            let mut submatrix = [[&self.layer.data[0][0]; WINDOW_COLUMN]; WINDOW_ROW];
+        let max_row = ROW + 1 - WINDOW_ROW;
+        let max_column = COLUMN + 1 - WINDOW_COLUMN;
+        if self.i < max_row && self.j < max_column {
+            let mut window = [[&self.layer.data[0][0]; WINDOW_COLUMN]; WINDOW_ROW];
             for i_window in 0..WINDOW_ROW {
                 for j_window in 0..WINDOW_COLUMN {
-                    submatrix[i_window][j_window] =
+                    window[i_window][j_window] =
                         &self.layer.data[self.i + i_window][self.j + j_window];
                 }
             }
-            Some(submatrix)
+            let result = Some((self.i, self.j, window));
+            self.j += 1;
+            if self.j == max_column && self.i < max_row {
+                self.j = 0;
+                self.i += 1;
+            }
+            result
         } else {
             None
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_iterator() -> () {
+        let mut layer = Layer::<f32, 3, 3>::new(0.0, 1.0);
+        for i in 0..layer.row() {
+            for j in 0..layer.column() {
+                layer[(i, j)] = (i as f32) * (j as f32) * layer.scale * layer.scale;
+            }
+        }
+
+        let mut new_layer = Layer::<f32, 3, 3>::new(0.0, 1.0);
+        for (i, j, ..) in new_layer.clone().iter() {
+            new_layer[(i as usize, j as usize)] = i * j
+        }
+
+        assert_eq!(layer, new_layer);
+    }
+
+    #[test]
+    fn test_windows1x2() -> () {
+        let mut layer = Layer::<f32, 3, 4>::new(1.0, 1.0);
+        for i in 0..layer.row() {
+            for j in 0..layer.column() {
+                layer[(i, j)] = (i as f32) * (j as f32) * layer.scale * layer.scale;
+            }
+        }
+
+        assert_eq!(
+            layer.windows_1x2().collect::<Vec<_>>(),
+            vec![
+                (0, 0, [[&0.0, &0.0]]),
+                (0, 1, [[&0.0, &0.0]]),
+                (0, 2, [[&0.0, &0.0]]),
+                (1, 0, [[&0.0, &1.0]]),
+                (1, 1, [[&1.0, &2.0]]),
+                (1, 2, [[&2.0, &3.0]]),
+                (2, 0, [[&0.0, &2.0]]),
+                (2, 1, [[&2.0, &4.0]]),
+                (2, 2, [[&4.0, &6.0]]),
+            ]
+        )
     }
 }

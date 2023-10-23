@@ -58,6 +58,58 @@ fn setup(
                     ..default()
                 });
             }
+            | TileType::WallBottom => {
+                commands.spawn(SceneBundle {
+                    scene: asset_server.load("models/wallSingle.gltf.glb#Scene0"),
+                    transform: Transform::from_xyz(x + 2.0, 0.0, z).with_rotation(Quat::from_rotation_y((90.0 as f32).to_radians())),
+                    ..default()
+                });
+                commands.spawn(PbrBundle {
+                    mesh: meshes.add(Mesh::from(shape::Cube { size: 4.0 })),
+                    material: materials.add(Color::rgb(0., 0., 0.).into()),
+                    transform: Transform::from_xyz(x, 2.0, z),
+                    ..default()
+                });
+            }
+            | TileType::WallRight => {
+                commands.spawn(SceneBundle {
+                    scene: asset_server.load("models/wallSingle.gltf.glb#Scene0"),
+                    transform: Transform::from_xyz(x, 0.0, z - 2.0).with_rotation(Quat::from_rotation_y((180.0 as f32).to_radians())),
+                    ..default()
+                });
+                commands.spawn(PbrBundle {
+                    mesh: meshes.add(Mesh::from(shape::Cube { size: 4.0 })),
+                    material: materials.add(Color::rgb(0., 0., 0.).into()),
+                    transform: Transform::from_xyz(x, 2.0, z),
+                    ..default()
+                });
+            }
+            | TileType::WallTop => {
+                commands.spawn(SceneBundle {
+                    scene: asset_server.load("models/wallSingle.gltf.glb#Scene0"),
+                    transform: Transform::from_xyz(x - 2.0, 0.0, z).with_rotation(Quat::from_rotation_y((270.0 as f32).to_radians())),
+                    ..default()
+                });
+                commands.spawn(PbrBundle {
+                    mesh: meshes.add(Mesh::from(shape::Cube { size: 4.0 })),
+                    material: materials.add(Color::rgb(0., 0., 0.).into()),
+                    transform: Transform::from_xyz(x, 2.0, z),
+                    ..default()
+                });
+            }
+            | TileType::WallLeft => {
+                commands.spawn(SceneBundle {
+                    scene: asset_server.load("models/wallSingle.gltf.glb#Scene0"),
+                    transform: Transform::from_xyz(x, 0.0, z + 2.0).with_rotation(Quat::from_rotation_y((0.0 as f32).to_radians())),
+                    ..default()
+                });
+                commands.spawn(PbrBundle {
+                    mesh: meshes.add(Mesh::from(shape::Cube { size: 4.0 })),
+                    material: materials.add(Color::rgb(0., 0., 0.).into()),
+                    transform: Transform::from_xyz(x, 2.0, z),
+                    ..default()
+                });
+            }
             | _ => {}
         }
     }
