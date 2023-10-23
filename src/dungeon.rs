@@ -61,7 +61,8 @@ fn setup(
             | TileType::WallBottom => {
                 commands.spawn(SceneBundle {
                     scene: asset_server.load("models/wallSingle.gltf.glb#Scene0"),
-                    transform: Transform::from_xyz(x + 2.0, 0.0, z).with_rotation(Quat::from_rotation_y((90.0 as f32).to_radians())),
+                    transform: Transform::from_xyz(x + 2.0, 0.0, z)
+                        .with_rotation(Quat::from_rotation_y((90.0 as f32).to_radians())),
                     ..default()
                 });
                 commands.spawn(PbrBundle {
@@ -74,7 +75,8 @@ fn setup(
             | TileType::WallRight => {
                 commands.spawn(SceneBundle {
                     scene: asset_server.load("models/wallSingle.gltf.glb#Scene0"),
-                    transform: Transform::from_xyz(x, 0.0, z - 2.0).with_rotation(Quat::from_rotation_y((180.0 as f32).to_radians())),
+                    transform: Transform::from_xyz(x, 0.0, z - 2.0)
+                        .with_rotation(Quat::from_rotation_y((180.0 as f32).to_radians())),
                     ..default()
                 });
                 commands.spawn(PbrBundle {
@@ -87,7 +89,8 @@ fn setup(
             | TileType::WallTop => {
                 commands.spawn(SceneBundle {
                     scene: asset_server.load("models/wallSingle.gltf.glb#Scene0"),
-                    transform: Transform::from_xyz(x - 2.0, 0.0, z).with_rotation(Quat::from_rotation_y((270.0 as f32).to_radians())),
+                    transform: Transform::from_xyz(x - 2.0, 0.0, z)
+                        .with_rotation(Quat::from_rotation_y((270.0 as f32).to_radians())),
                     ..default()
                 });
                 commands.spawn(PbrBundle {
@@ -100,7 +103,8 @@ fn setup(
             | TileType::WallLeft => {
                 commands.spawn(SceneBundle {
                     scene: asset_server.load("models/wallSingle.gltf.glb#Scene0"),
-                    transform: Transform::from_xyz(x, 0.0, z + 2.0).with_rotation(Quat::from_rotation_y((0.0 as f32).to_radians())),
+                    transform: Transform::from_xyz(x, 0.0, z + 2.0)
+                        .with_rotation(Quat::from_rotation_y((0.0 as f32).to_radians())),
                     ..default()
                 });
                 commands.spawn(PbrBundle {
