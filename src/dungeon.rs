@@ -2,7 +2,7 @@
 
 mod map;
 
-use map::{Map, TileType};
+use map::{Map, TileType, WallType};
 
 use bevy::pbr::DirectionalLightShadowMap;
 use bevy::prelude::*;
@@ -58,7 +58,7 @@ fn setup(
                     ..default()
                 });
             }
-            | TileType::WallBottom => {
+            | TileType::Wall(WallType::Bottom) => {
                 commands.spawn(SceneBundle {
                     scene: asset_server.load("models/wallSingle.gltf.glb#Scene0"),
                     transform: Transform::from_xyz(x + 2.0, 0.0, z)
@@ -72,7 +72,7 @@ fn setup(
                     ..default()
                 });
             }
-            | TileType::WallRight => {
+            | TileType::Wall(WallType::Right) => {
                 commands.spawn(SceneBundle {
                     scene: asset_server.load("models/wallSingle.gltf.glb#Scene0"),
                     transform: Transform::from_xyz(x, 0.0, z - 2.0)
@@ -86,7 +86,7 @@ fn setup(
                     ..default()
                 });
             }
-            | TileType::WallTop => {
+            | TileType::Wall(WallType::Top) => {
                 commands.spawn(SceneBundle {
                     scene: asset_server.load("models/wallSingle.gltf.glb#Scene0"),
                     transform: Transform::from_xyz(x - 2.0, 0.0, z)
@@ -100,7 +100,7 @@ fn setup(
                     ..default()
                 });
             }
-            | TileType::WallLeft => {
+            | TileType::Wall(WallType::Left) => {
                 commands.spawn(SceneBundle {
                     scene: asset_server.load("models/wallSingle.gltf.glb#Scene0"),
                     transform: Transform::from_xyz(x, 0.0, z + 2.0)

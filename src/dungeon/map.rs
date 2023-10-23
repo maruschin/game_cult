@@ -2,7 +2,7 @@ mod enums;
 mod layer;
 mod room_layer;
 
-pub use enums::TileType;
+pub use enums::{TileType, WallType};
 pub use layer::Layer;
 pub use room_layer::RoomLayer;
 

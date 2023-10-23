@@ -1,12 +1,18 @@
 #[derive(PartialEq, Copy, Clone)]
+
+pub enum WallType {
+    Left,
+    Right,
+    Top,
+    Bottom,
+    LeftRight,
+    TopBottom,
+}
+
+#[derive(Clone, Copy, PartialEq)]
 pub enum TileType {
     Empthy,
-    WallLeft,
-    WallRight,
-    WallLeftRight,
-    WallTop,
-    WallBottom,
-    WallTopBottom,
+    Wall(WallType),
     Floor,
     Path,
 }

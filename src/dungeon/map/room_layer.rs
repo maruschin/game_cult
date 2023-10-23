@@ -1,4 +1,4 @@
-use super::{Layer, TileType};
+use super::{Layer, TileType, WallType};
 use rand::{rngs::ThreadRng, Rng};
 use std::cmp::{max, min};
 use std::fmt;
@@ -35,13 +35,13 @@ impl<const ROW: usize, const COLUMN: usize> RoomLayer<ROW, COLUMN> {
         for (i, j, el) in layer.clone().windows_1x3() {
             match el {
                 | [[TileType::Floor | TileType::Path, TileType::Empthy, TileType::Floor | TileType::Path]] => {
-                    layer[(i, j + 1)] = TileType::WallLeftRight
+                    layer[(i, j + 1)] = TileType::Wall(WallType::LeftRight)
                 }
                 | [[TileType::Floor | TileType::Path, TileType::Empthy, TileType::Empthy]] => {
-                    layer[(i, j + 1)] = TileType::WallRight
+                    layer[(i, j + 1)] = TileType::Wall(WallType::Right)
                 }
                 | [[TileType::Empthy, TileType::Empthy, TileType::Floor | TileType::Path]] => {
-                    layer[(i, j + 1)] = TileType::WallLeft
+                    layer[(i, j + 1)] = TileType::Wall(WallType::Left)
                 }
                 | _ => {}
             }
@@ -50,10 +50,10 @@ impl<const ROW: usize, const COLUMN: usize> RoomLayer<ROW, COLUMN> {
         for el in layer.clone().windows_1x2() {
             match el {
                 | (i, j, [[TileType::Floor | TileType::Path, TileType::Empthy]]) => {
-                    layer[(i, j)] = TileType::WallRight
+                    layer[(i, j)] = TileType::Wall(WallType::Right)
                 }
                 | (i, j, [[TileType::Empthy, TileType::Floor | TileType::Path]]) => {
-                    layer[(i, j)] = TileType::WallLeft
+                    layer[(i, j)] = TileType::Wall(WallType::Left)
                 }
                 | _ => {}
             }
@@ -62,13 +62,13 @@ impl<const ROW: usize, const COLUMN: usize> RoomLayer<ROW, COLUMN> {
         for (i, j, el) in layer.clone().windows_3x1() {
             match el {
                 | [[TileType::Floor | TileType::Path], [TileType::Empthy], [TileType::Floor | TileType::Path]] => {
-                    layer[(i + 1, j)] = TileType::WallTopBottom
+                    layer[(i + 1, j)] = TileType::Wall(WallType::TopBottom)
                 }
                 | [[TileType::Floor | TileType::Path], [TileType::Empthy], [TileType::Empthy]] => {
-                    layer[(i + 1, j)] = TileType::WallTop
+                    layer[(i + 1, j)] = TileType::Wall(WallType::Top)
                 }
                 | [[TileType::Empthy], [TileType::Empthy], [TileType::Floor | TileType::Path]] => {
-                    layer[(i + 1, j)] = TileType::WallBottom
+                    layer[(i + 1, j)] = TileType::Wall(WallType::Bottom)
                 }
                 | _ => {}
             }
@@ -77,10 +77,10 @@ impl<const ROW: usize, const COLUMN: usize> RoomLayer<ROW, COLUMN> {
         for (i, j, el) in layer.clone().windows_2x1() {
             match el {
                 | [[TileType::Empthy], [TileType::Floor | TileType::Path]] => {
-                    layer[(i, j)] = TileType::WallBottom
+                    layer[(i, j)] = TileType::Wall(WallType::Bottom)
                 }
                 | [[TileType::Floor | TileType::Path], [TileType::Empthy]] => {
-                    layer[(i + 1, j)] = TileType::WallTop
+                    layer[(i + 1, j)] = TileType::Wall(WallType::Top)
                 }
                 | _ => {}
             }
