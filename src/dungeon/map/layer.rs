@@ -22,10 +22,12 @@ impl<T, const ROW: usize, const COLUMN: usize> Layer<T, ROW, COLUMN> {
         ((i as f32) * self.scale, (j as f32) * self.scale)
     }
 
+    #[allow(dead_code)]
     pub fn row(&self) -> usize {
         ROW
     }
 
+    #[allow(dead_code)]
     pub fn column(&self) -> usize {
         COLUMN
     }
@@ -38,13 +40,18 @@ impl<T, const ROW: usize, const COLUMN: usize> Layer<T, ROW, COLUMN> {
         LayerWindows::new(self)
     }
 
+    pub fn windows_1x2(&self) -> LayerWindows<'_, T, ROW, COLUMN, 1, 2> {
+        LayerWindows::new(self)
+    }
+
+    pub fn windows_2x2(&self) -> LayerWindows<'_, T, ROW, COLUMN, 2, 2> {
+        LayerWindows::new(self)
+    }
+
     pub fn windows_3x1(&self) -> LayerWindows<'_, T, ROW, COLUMN, 3, 1> {
         LayerWindows::new(self)
     }
 
-    pub fn windows_1x2(&self) -> LayerWindows<'_, T, ROW, COLUMN, 1, 2> {
-        LayerWindows::new(self)
-    }
     pub fn windows_1x3(&self) -> LayerWindows<'_, T, ROW, COLUMN, 1, 3> {
         LayerWindows::new(self)
     }

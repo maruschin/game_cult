@@ -1,15 +1,19 @@
 //! Модуль предназначенный для генерации данжена
 
+mod commands;
+mod enums;
 mod map;
 
-use map::{Map, TileType, WallType};
+use commands::{SpawnCorner, SpawnDoor, SpawnFloor, SpawnWall};
+pub use enums::{CornerType, TileType, WallType};
+use map::Map;
 
 use bevy::pbr::DirectionalLightShadowMap;
 use bevy::prelude::*;
 use std::f32::consts::PI;
 
-pub const DUNGEON_ROW: usize = 20;
-pub const DUNGEON_COLUMN: usize = 10;
+pub const DUNGEON_ROW: usize = 15;
+pub const DUNGEON_COLUMN: usize = 15;
 
 /// Просто плагин
 pub struct DungeonPlugin;
@@ -52,69 +56,17 @@ fn setup(
                 });
             }
             | TileType::Floor => {
-                commands.spawn(SceneBundle {
-                    scene: asset_server.load("models/tileBrickB_medium.gltf.glb#Scene0"),
-                    transform: Transform::from_xyz(x, -1.0, z),
-                    ..default()
-                });
+                commands.add(SpawnFloor::new(x, 0.0, z));
             }
-            | TileType::Wall(WallType::Bottom) => {
-                commands.spawn(SceneBundle {
-                    scene: asset_server.load("models/wallSingle.gltf.glb#Scene0"),
-                    transform: Transform::from_xyz(x + 2.0, 0.0, z)
-                        .with_rotation(Quat::from_rotation_y((90.0 as f32).to_radians())),
-                    ..default()
-                });
-                commands.spawn(PbrBundle {
-                    mesh: meshes.add(Mesh::from(shape::Cube { size: 4.0 })),
-                    material: materials.add(Color::rgb(0., 0., 0.).into()),
-                    transform: Transform::from_xyz(x, 2.0, z),
-                    ..default()
-                });
+            | TileType::Wall(wall_type) => {
+                commands.add(SpawnWall::new(x, 0.0, z, *wall_type));
             }
-            | TileType::Wall(WallType::Right) => {
-                commands.spawn(SceneBundle {
-                    scene: asset_server.load("models/wallSingle.gltf.glb#Scene0"),
-                    transform: Transform::from_xyz(x, 0.0, z - 2.0)
-                        .with_rotation(Quat::from_rotation_y((180.0 as f32).to_radians())),
-                    ..default()
-                });
-                commands.spawn(PbrBundle {
-                    mesh: meshes.add(Mesh::from(shape::Cube { size: 4.0 })),
-                    material: materials.add(Color::rgb(0., 0., 0.).into()),
-                    transform: Transform::from_xyz(x, 2.0, z),
-                    ..default()
-                });
+            | TileType::Corner(corner_type) => {
+                commands.add(SpawnCorner::new(x, 0.0, z, *corner_type));
             }
-            | TileType::Wall(WallType::Top) => {
-                commands.spawn(SceneBundle {
-                    scene: asset_server.load("models/wallSingle.gltf.glb#Scene0"),
-                    transform: Transform::from_xyz(x - 2.0, 0.0, z)
-                        .with_rotation(Quat::from_rotation_y((270.0 as f32).to_radians())),
-                    ..default()
-                });
-                commands.spawn(PbrBundle {
-                    mesh: meshes.add(Mesh::from(shape::Cube { size: 4.0 })),
-                    material: materials.add(Color::rgb(0., 0., 0.).into()),
-                    transform: Transform::from_xyz(x, 2.0, z),
-                    ..default()
-                });
+            | TileType::Door(door_type) => {
+                commands.add(SpawnDoor::new(x, 0.0, z, *door_type));
             }
-            | TileType::Wall(WallType::Left) => {
-                commands.spawn(SceneBundle {
-                    scene: asset_server.load("models/wallSingle.gltf.glb#Scene0"),
-                    transform: Transform::from_xyz(x, 0.0, z + 2.0)
-                        .with_rotation(Quat::from_rotation_y((0.0 as f32).to_radians())),
-                    ..default()
-                });
-                commands.spawn(PbrBundle {
-                    mesh: meshes.add(Mesh::from(shape::Cube { size: 4.0 })),
-                    material: materials.add(Color::rgb(0., 0., 0.).into()),
-                    transform: Transform::from_xyz(x, 2.0, z),
-                    ..default()
-                });
-            }
-            | _ => {}
         }
     }
 
