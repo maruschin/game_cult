@@ -1,7 +1,7 @@
 mod layer;
 mod room_layer;
 
-pub use super::{CornerType, TileType, WallType};
+pub use super::{TileType, WallType};
 pub use layer::Layer;
 pub use room_layer::RoomLayer;
 

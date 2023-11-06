@@ -36,16 +36,19 @@ impl<const ROW: usize, const COLUMN: usize> RoomLayer<ROW, COLUMN> {
         for (i, j, el) in layer.clone().windows_2x2() {
             match el {
                 | [[TileType::Empthy, TileType::Empthy], [TileType::Empthy, TileType::Floor]] => {
-                    layer[(i + 1, j + 1)] = TileType::Corner(CornerType::BottomLeft);
+                    layer[(i + 1, j + 1)] =
+                        TileType::Wall(WallType::InternalCorner(CornerType::BottomLeft));
                 }
                 | [[TileType::Empthy, TileType::Empthy], [TileType::Floor, TileType::Empthy]] => {
-                    layer[(i + 1, j)] = TileType::Corner(CornerType::BottomRight);
+                    layer[(i + 1, j)] =
+                        TileType::Wall(WallType::InternalCorner(CornerType::BottomRight));
                 }
                 | [[TileType::Empthy, TileType::Floor], [TileType::Empthy, TileType::Empthy]] => {
-                    layer[(i, j + 1)] = TileType::Corner(CornerType::TopLeft);
+                    layer[(i, j + 1)] =
+                        TileType::Wall(WallType::InternalCorner(CornerType::TopLeft));
                 }
                 | [[TileType::Floor, TileType::Empthy], [TileType::Empthy, TileType::Empthy]] => {
-                    layer[(i, j)] = TileType::Corner(CornerType::TopRight);
+                    layer[(i, j)] = TileType::Wall(WallType::InternalCorner(CornerType::TopRight));
                 }
                 | _ => {}
             }
@@ -53,9 +56,6 @@ impl<const ROW: usize, const COLUMN: usize> RoomLayer<ROW, COLUMN> {
 
         for (i, j, el) in layer.clone().windows_1x3() {
             match el {
-                | [[TileType::Empthy, TileType::Floor, TileType::Empthy]] => {
-                    layer[(i, j + 1)] = TileType::Wall(WallType::LeftRight)
-                }
                 | [[TileType::Empthy, TileType::Floor, TileType::Floor]] => {
                     layer[(i, j + 1)] = TileType::Wall(WallType::Left)
                 }
@@ -68,9 +68,6 @@ impl<const ROW: usize, const COLUMN: usize> RoomLayer<ROW, COLUMN> {
 
         for (i, j, el) in layer.clone().windows_3x1() {
             match el {
-                | [[TileType::Empthy], [TileType::Floor], [TileType::Empthy]] => {
-                    layer[(i + 1, j)] = TileType::Wall(WallType::TopBottom)
-                }
                 | [[TileType::Empthy], [TileType::Floor], [TileType::Floor]] => {
                     layer[(i + 1, j)] = TileType::Wall(WallType::Bottom)
                 }

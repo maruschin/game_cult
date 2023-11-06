@@ -4,8 +4,8 @@ mod commands;
 mod enums;
 mod map;
 
-use commands::{SpawnCorner, SpawnDoor, SpawnFloor, SpawnWall};
-pub use enums::{CornerType, TileType, WallType};
+use commands::{SpawnDoor, SpawnFloor, SpawnWall};
+pub use enums::{TileType, WallType};
 use map::Map;
 
 use bevy::pbr::DirectionalLightShadowMap;
@@ -60,9 +60,6 @@ fn setup(
             }
             | TileType::Wall(wall_type) => {
                 commands.add(SpawnWall::new(x, 0.0, z, *wall_type));
-            }
-            | TileType::Corner(corner_type) => {
-                commands.add(SpawnCorner::new(x, 0.0, z, *corner_type));
             }
             | TileType::Door(door_type) => {
                 commands.add(SpawnDoor::new(x, 0.0, z, *door_type));

@@ -1,4 +1,4 @@
-use crate::dungeon::map::WallType;
+use crate::dungeon::enums::{CornerType, WallType};
 use bevy::ecs::system::Command;
 use bevy::prelude::*;
 
@@ -60,7 +60,7 @@ impl Command for SpawnWall {
                         ..default()
                     });
                 }
-                | WallType::LeftRight => {
+                | WallType::InternalCorner(CornerType::TopLeft) => {
                     batch.push(SceneBundle {
                         scene: asset_server.load(wall_asset_path),
                         transform: Transform::from_xyz(x, y, z - 2.0)
@@ -69,16 +69,30 @@ impl Command for SpawnWall {
                     });
                     batch.push(SceneBundle {
                         scene: asset_server.load(wall_asset_path),
+                        transform: Transform::from_xyz(x + 2.0, y, z)
+                            .with_rotation(Quat::from_rotation_y((270.0 as f32).to_radians())),
+                        ..default()
+                    });
+                }
+                | WallType::InternalCorner(CornerType::TopRight) => {
+                    batch.push(SceneBundle {
+                        scene: asset_server.load(wall_asset_path),
                         transform: Transform::from_xyz(x, y, z + 2.0)
                             .with_rotation(Quat::from_rotation_y((180.0 as f32).to_radians())),
                         ..default()
                     });
-                }
-                | WallType::TopBottom => {
                     batch.push(SceneBundle {
                         scene: asset_server.load(wall_asset_path),
                         transform: Transform::from_xyz(x + 2.0, y, z)
                             .with_rotation(Quat::from_rotation_y((270.0 as f32).to_radians())),
+                        ..default()
+                    });
+                }
+                | WallType::InternalCorner(CornerType::BottomLeft) => {
+                    batch.push(SceneBundle {
+                        scene: asset_server.load(wall_asset_path),
+                        transform: Transform::from_xyz(x, y, z - 2.0)
+                            .with_rotation(Quat::from_rotation_y((0.0 as f32).to_radians())),
                         ..default()
                     });
                     batch.push(SceneBundle {
@@ -88,6 +102,21 @@ impl Command for SpawnWall {
                         ..default()
                     });
                 }
+                | WallType::InternalCorner(CornerType::BottomRight) => {
+                    batch.push(SceneBundle {
+                        scene: asset_server.load(wall_asset_path),
+                        transform: Transform::from_xyz(x, y, z + 2.0)
+                            .with_rotation(Quat::from_rotation_y((180.0 as f32).to_radians())),
+                        ..default()
+                    });
+                    batch.push(SceneBundle {
+                        scene: asset_server.load(wall_asset_path),
+                        transform: Transform::from_xyz(x - 2.0, y, z)
+                            .with_rotation(Quat::from_rotation_y((90.0 as f32).to_radians())),
+                        ..default()
+                    });
+                }
+                | WallType::ExternalCorner(_) => {}
             }
 
             world.spawn_batch(batch);
