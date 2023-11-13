@@ -4,7 +4,7 @@ mod commands;
 mod enums;
 mod map;
 
-use commands::{SpawnDoor, SpawnFloor, SpawnWall};
+use commands::{SpawnDoor, SpawnFloor, SpawnPlayer, SpawnWall};
 pub use enums::{TileType, WallType};
 use map::Map;
 
@@ -65,6 +65,12 @@ fn setup(
                 commands.add(SpawnDoor::new(x, 0.0, z, *door_type));
             }
         }
+    }
+
+    // Spawn player
+    if let Some(room) = room_layer.rooms.first() {
+        let (i, j) = room.center();
+        commands.add(SpawnPlayer::new((i * 4) as f32, 0.5, (j * 4) as f32));
     }
 
     // barrel

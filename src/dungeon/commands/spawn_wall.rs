@@ -80,7 +80,8 @@ impl Command for SpawnWall {
                         })
                     };
                     // Right wall
-                    if corner_type == CornerType::TopRight || corner_type == CornerType::BottomRight {
+                    if corner_type == CornerType::TopRight || corner_type == CornerType::BottomRight
+                    {
                         batch.push(SceneBundle {
                             scene: asset_server.load(wall_asset_path),
                             transform: Transform::from_xyz(x, y, z + 2.0)
@@ -89,7 +90,9 @@ impl Command for SpawnWall {
                         });
                     };
                     // Bottom wall
-                    if corner_type == CornerType::BottomLeft || corner_type == CornerType::BottomRight {
+                    if corner_type == CornerType::BottomLeft
+                        || corner_type == CornerType::BottomRight
+                    {
                         batch.push(SceneBundle {
                             scene: asset_server.load(wall_asset_path),
                             transform: Transform::from_xyz(x - 2.0, y, z)
