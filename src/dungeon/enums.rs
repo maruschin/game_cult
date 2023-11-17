@@ -8,6 +8,7 @@ pub enum CornerType {
 
 #[derive(Clone, Copy, PartialEq)]
 pub enum FloorType {
+    Empthy,
     Room,
     Path,
 }
@@ -33,6 +34,5 @@ pub enum DoorType {
 pub enum TileType {
     Empthy,
     Wall(WallType),
-    Floor(FloorType),
     Door(DoorType),
 }

@@ -39,10 +39,13 @@ fn setup(
         ..default()
     });
 
-    let Map { room_layer } = Map::<DUNGEON_ROW, DUNGEON_COLUMN>::new();
+    let Map {
+        room_layer,
+        wall_layer,
+    } = Map::<DUNGEON_ROW, DUNGEON_COLUMN>::new();
     for (x, z, tile) in room_layer.layer.iter() {
         match tile {
-            | TileType::Empthy => {
+            | FloorType::Empthy => {
                 commands.spawn(PbrBundle {
                     mesh: meshes.add(Mesh::from(shape::Cube { size: 4.0 })),
                     material: materials.add(Color::rgb(0., 0., 0.).into()),
@@ -50,16 +53,22 @@ fn setup(
                     ..default()
                 });
             }
-            | TileType::Floor(FloorType::Path) => {
+            | FloorType::Path => {
                 commands.spawn(SceneBundle {
                     scene: asset_server.load("models/tileBrickA_medium.gltf.glb#Scene0"),
                     transform: Transform::from_xyz(x, -1.0, z),
                     ..default()
                 });
             }
-            | TileType::Floor(FloorType::Room) => {
+            | FloorType::Room => {
                 commands.add(SpawnFloor::new(x, 0.0, z));
             }
+        }
+    }
+
+    for (x, z, tile) in wall_layer.layer.iter() {
+        match tile {
+            | TileType::Empthy => {}
             | TileType::Wall(wall_type) => {
                 commands.add(SpawnWall::new(x, 0.0, z, *wall_type));
             }

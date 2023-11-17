@@ -21,11 +21,7 @@ impl Command for SpawnWall {
         if let Some(asset_server) = world.get_resource::<AssetServer>() {
             let wall_asset_path = "models/wallSingle.gltf.glb#Scene0";
             let Vec3 { x, y, z } = self.position;
-            let mut batch = vec![SceneBundle {
-                scene: asset_server.load("models/tileBrickB_medium.gltf.glb#Scene0"),
-                transform: Transform::from_xyz(x, y - 1.0, z),
-                ..default()
-            }];
+            let mut batch: Vec<SceneBundle> = vec![];
 
             match self.wall_type {
                 | WallType::Bottom => {
