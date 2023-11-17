@@ -12,6 +12,8 @@ use bevy::pbr::DirectionalLightShadowMap;
 use bevy::prelude::*;
 use std::f32::consts::PI;
 
+use self::enums::FloorType;
+
 pub const DUNGEON_ROW: usize = 15;
 pub const DUNGEON_COLUMN: usize = 15;
 
@@ -48,14 +50,14 @@ fn setup(
                     ..default()
                 });
             }
-            | TileType::Path => {
+            | TileType::Floor(FloorType::Path) => {
                 commands.spawn(SceneBundle {
                     scene: asset_server.load("models/tileBrickA_medium.gltf.glb#Scene0"),
                     transform: Transform::from_xyz(x, -1.0, z),
                     ..default()
                 });
             }
-            | TileType::Floor => {
+            | TileType::Floor(FloorType::Room) => {
                 commands.add(SpawnFloor::new(x, 0.0, z));
             }
             | TileType::Wall(wall_type) => {

@@ -101,7 +101,6 @@ impl Command for SpawnWall {
                         });
                     }
                 }
-                | WallType::ExternalCorner(_) => todo!(),
             }
 
             world.spawn_batch(batch);
