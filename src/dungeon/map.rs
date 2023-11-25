@@ -2,7 +2,6 @@ mod layer;
 mod room_layer;
 mod wall_layer;
 
-pub use super::{TileType, WallType};
 pub use room_layer::RoomLayer;
 pub use wall_layer::WallLayer;
 

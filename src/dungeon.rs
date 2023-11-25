@@ -1,18 +1,17 @@
 //! Модуль предназначенный для генерации данжена
 
 mod commands;
+mod components;
 mod enums;
 mod map;
 
 use commands::{SpawnDoor, SpawnFloor, SpawnPlayer, SpawnWall};
-pub use enums::{TileType, WallType};
+use enums::{FloorType, TileType};
 use map::Map;
 
 use bevy::pbr::DirectionalLightShadowMap;
 use bevy::prelude::*;
 use std::f32::consts::PI;
-
-use self::enums::FloorType;
 
 pub const DUNGEON_ROW: usize = 15;
 pub const DUNGEON_COLUMN: usize = 15;

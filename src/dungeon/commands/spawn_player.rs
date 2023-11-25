@@ -1,6 +1,8 @@
 use bevy::ecs::system::Command;
 use bevy::prelude::*;
 
+use crate::dungeon::components::Player;
+
 pub struct SpawnPlayer {
     pub position: Vec3,
 }
@@ -16,11 +18,18 @@ impl SpawnPlayer {
 impl Command for SpawnPlayer {
     fn apply(self, world: &mut World) {
         if let Some(asset_server) = world.get_resource::<AssetServer>() {
-            world.spawn(SceneBundle {
-                scene: asset_server.load("models/Characters/character_barbarian.gltf#Scene0"),
-                transform: Transform::from_xyz(self.position.x, self.position.y, self.position.z),
-                ..default()
-            });
+            world.spawn((
+                Player,
+                SceneBundle {
+                    scene: asset_server.load("models/Characters/character_barbarian.gltf#Scene0"),
+                    transform: Transform::from_xyz(
+                        self.position.x,
+                        self.position.y,
+                        self.position.z,
+                    ),
+                    ..default()
+                },
+            ));
         }
     }
 }
