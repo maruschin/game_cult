@@ -6,6 +6,7 @@ mod enums;
 mod map;
 
 use commands::{SpawnDoor, SpawnFloor, SpawnPlayer, SpawnWall};
+use components::Player;
 use enums::{FloorType, TileType};
 use map::Map;
 
@@ -23,7 +24,7 @@ impl Plugin for DungeonPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(DirectionalLightShadowMap { size: 512 })
             .add_systems(Startup, setup)
-            .add_systems(Update, (gizmos_system, rotate_camera));
+            .add_systems(Update, (gizmos_system, move_player));
     }
 }
 
@@ -33,11 +34,6 @@ fn setup(
     mut materials: ResMut<Assets<StandardMaterial>>,
     asset_server: Res<AssetServer>,
 ) {
-    commands.spawn(Camera3dBundle {
-        transform: Transform::from_xyz(0., 18.0, 24.).looking_at(Vec3::ZERO, Vec3::Y),
-        ..default()
-    });
-
     let Map {
         room_layer,
         wall_layer,
@@ -120,38 +116,51 @@ fn gizmos_system(mut gizmos: Gizmos) {
     }
 }
 
-fn rotate_camera(
+fn move_player(
     mut camera_transform_query: Query<&mut Transform, With<Camera>>,
+    mut player_transform_query: Query<&mut Transform, (With<Player>, Without<Camera>)>,
     keys: Res<Input<KeyCode>>,
     time: Res<Time>,
 ) {
     let mut camera_transform = camera_transform_query.single_mut();
-    let time_delta_rotation = time.delta_seconds() / 2.0;
-    let time_delta_move = time_delta_rotation * 16.0;
+    let mut player_transform = player_transform_query.single_mut();
+
+    let time_delta_rotation = time.delta_seconds() * 2.0;
+    let time_delta_move = time_delta_rotation * 4.0;
 
     if keys.pressed(KeyCode::Q) {
-        camera_transform.rotate(Quat::from_rotation_y(time_delta_rotation));
+        player_transform.rotate(Quat::from_rotation_y(time_delta_rotation));
     }
     if keys.pressed(KeyCode::E) {
-        camera_transform.rotate(Quat::from_rotation_y(-time_delta_rotation));
+        player_transform.rotate(Quat::from_rotation_y(-time_delta_rotation));
     }
 
     if keys.pressed(KeyCode::W) {
-        let mut forward_vector = camera_transform.forward();
-        forward_vector.y = 0.0;
-        camera_transform.translation += forward_vector.normalize() * time_delta_move;
+        let forward_vector = {
+            let mut forward_vector = player_transform.forward();
+            forward_vector.y = 0.0;
+            forward_vector.normalize() * time_delta_move
+        };
+        player_transform.translation += forward_vector;
     }
     if keys.pressed(KeyCode::S) {
-        let mut back_vector = camera_transform.back();
-        back_vector.y = 0.0;
-        camera_transform.translation += back_vector.normalize() * time_delta_move;
+        let back_vector = {
+            let mut back_vector = player_transform.back();
+            back_vector.y = 0.0;
+            back_vector.normalize() * time_delta_move
+        };
+        player_transform.translation += back_vector;
     }
     if keys.pressed(KeyCode::A) {
-        camera_transform.translation =
-            camera_transform.translation + camera_transform.left() * time_delta_move;
+        let left_vector = player_transform.left() * time_delta_move;
+        player_transform.translation += left_vector;
     }
     if keys.pressed(KeyCode::D) {
-        camera_transform.translation =
-            camera_transform.translation + camera_transform.right() * time_delta_move;
+        let right_vector = player_transform.right() * time_delta_move;
+        player_transform.translation += right_vector;
     }
+
+    camera_transform.translation =
+        player_transform.translation + player_transform.back() * 4.0 + player_transform.up() * 1.5;
+    camera_transform.rotation = player_transform.rotation;
 }

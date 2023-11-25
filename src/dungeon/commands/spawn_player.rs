@@ -1,7 +1,7 @@
 use bevy::ecs::system::Command;
 use bevy::prelude::*;
 
-use crate::dungeon::components::Player;
+use crate::dungeon::components::{Player, PlayerCamera};
 
 pub struct SpawnPlayer {
     pub position: Vec3,
@@ -27,6 +27,18 @@ impl Command for SpawnPlayer {
                         self.position.y,
                         self.position.z,
                     ),
+                    ..default()
+                },
+            ));
+
+            world.spawn((
+                PlayerCamera,
+                Camera3dBundle {
+                    projection: PerspectiveProjection {
+                        fov: 75.0_f32.to_radians(),
+                        ..default()
+                    }
+                    .into(),
                     ..default()
                 },
             ));
