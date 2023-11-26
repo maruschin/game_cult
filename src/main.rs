@@ -1,6 +1,8 @@
 mod dungeon;
 mod prelude {
+    pub use bevy::ecs::system::Command;
     pub use bevy::prelude::*;
+    pub use bevy_rapier3d::prelude::*;
 }
 
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
@@ -18,6 +20,8 @@ fn main() {
         }))
         .add_plugins(LogDiagnosticsPlugin::default())
         .add_plugins(FrameTimeDiagnosticsPlugin::default())
+        .add_plugins(RapierPhysicsPlugin::<NoUserData>::default())
+        .add_plugins(RapierDebugRenderPlugin::default())
         .add_plugins(DungeonPlugin)
         .run();
 }

@@ -7,7 +7,7 @@ mod map;
 
 use commands::{SpawnDoor, SpawnFloor, SpawnPlayer, SpawnWall};
 use components::Player;
-use enums::{FloorType, TileType};
+use enums::TileType;
 use map::Map;
 
 use bevy::pbr::DirectionalLightShadowMap;
@@ -17,7 +17,6 @@ use std::f32::consts::PI;
 pub const DUNGEON_ROW: usize = 15;
 pub const DUNGEON_COLUMN: usize = 15;
 
-/// Просто плагин
 pub struct DungeonPlugin;
 
 impl Plugin for DungeonPlugin {
@@ -28,37 +27,14 @@ impl Plugin for DungeonPlugin {
     }
 }
 
-fn setup(
-    mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-    asset_server: Res<AssetServer>,
-) {
+fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     let Map {
         room_layer,
         wall_layer,
     } = Map::<DUNGEON_ROW, DUNGEON_COLUMN>::new();
+
     for (x, z, tile) in room_layer.layer.iter() {
-        match tile {
-            | FloorType::Empthy => {
-                commands.spawn(PbrBundle {
-                    mesh: meshes.add(Mesh::from(shape::Cube { size: 4.0 })),
-                    material: materials.add(Color::rgb(0., 0., 0.).into()),
-                    transform: Transform::from_xyz(x, 2.0, z),
-                    ..default()
-                });
-            }
-            | FloorType::Path => {
-                commands.spawn(SceneBundle {
-                    scene: asset_server.load("models/tileBrickA_medium.gltf.glb#Scene0"),
-                    transform: Transform::from_xyz(x, -1.0, z),
-                    ..default()
-                });
-            }
-            | FloorType::Room => {
-                commands.add(SpawnFloor::new(x, 0.0, z));
-            }
-        }
+        commands.add(SpawnFloor::new(x, 0.0, z, *tile));
     }
 
     for (x, z, tile) in wall_layer.layer.iter() {

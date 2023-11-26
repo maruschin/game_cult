@@ -1,5 +1,4 @@
-use bevy::ecs::system::Command;
-use bevy::prelude::*;
+use crate::prelude::*;
 
 use crate::dungeon::components::{Player, PlayerCamera};
 
@@ -20,6 +19,8 @@ impl Command for SpawnPlayer {
         if let Some(asset_server) = world.get_resource::<AssetServer>() {
             world.spawn((
                 Player,
+                RigidBody::Fixed,
+                Collider::capsule_y(0.0, 0.5),
                 SceneBundle {
                     scene: asset_server.load("models/Characters/character_barbarian.gltf#Scene0"),
                     transform: Transform::from_xyz(
