@@ -23,7 +23,7 @@ impl Plugin for DungeonPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(DirectionalLightShadowMap { size: 512 })
             .add_systems(Startup, setup)
-            .add_systems(Update, (gizmos_system, move_player));
+            .add_systems(Update, (gizmos_system, move_player, camera_following_player));
     }
 }
 
@@ -92,13 +92,23 @@ fn gizmos_system(mut gizmos: Gizmos) {
     }
 }
 
-fn move_player(
+fn camera_following_player(
     mut camera_transform_query: Query<&mut Transform, With<Camera>>,
+    mut player_transform_query: Query<&Transform, (With<Player>, Without<Camera>)>,
+) {
+    let mut camera_transform = camera_transform_query.single_mut();
+    let player_transform = player_transform_query.single_mut();
+
+    camera_transform.translation =
+        player_transform.translation + player_transform.back() * 4.0 + player_transform.up() * 1.5;
+    camera_transform.rotation = player_transform.rotation;
+}
+
+fn move_player(
     mut player_transform_query: Query<&mut Transform, (With<Player>, Without<Camera>)>,
     keys: Res<Input<KeyCode>>,
     time: Res<Time>,
 ) {
-    let mut camera_transform = camera_transform_query.single_mut();
     let mut player_transform = player_transform_query.single_mut();
 
     let time_delta_rotation = time.delta_seconds() * 2.0;
@@ -135,8 +145,4 @@ fn move_player(
         let right_vector = player_transform.right() * time_delta_move;
         player_transform.translation += right_vector;
     }
-
-    camera_transform.translation =
-        player_transform.translation + player_transform.back() * 4.0 + player_transform.up() * 1.5;
-    camera_transform.rotation = player_transform.rotation;
 }
