@@ -5,13 +5,14 @@ mod components;
 mod enums;
 mod map;
 
+use crate::prelude::*;
+
 use commands::{SpawnDoor, SpawnFloor, SpawnPlayer, SpawnWall};
 use components::Player;
 use enums::TileType;
 use map::Map;
 
 use bevy::pbr::DirectionalLightShadowMap;
-use bevy::prelude::*;
 use std::f32::consts::PI;
 
 pub const DUNGEON_ROW: usize = 15;
@@ -23,7 +24,10 @@ impl Plugin for DungeonPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(DirectionalLightShadowMap { size: 512 })
             .add_systems(Startup, setup)
-            .add_systems(Update, (gizmos_system, move_player, camera_following_player));
+            .add_systems(
+                Update,
+                (gizmos_system, move_player, camera_following_player),
+            );
     }
 }
 
@@ -64,6 +68,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
             ..default()
         });
     }
+
     // light
     commands.spawn(DirectionalLightBundle {
         directional_light: DirectionalLight {
@@ -104,45 +109,40 @@ fn camera_following_player(
     camera_transform.rotation = player_transform.rotation;
 }
 
+const PLAYER_MOVE_VELOCITY: f32 = 0.2;
+
 fn move_player(
-    mut player_transform_query: Query<&mut Transform, (With<Player>, Without<Camera>)>,
     keys: Res<Input<KeyCode>>,
+    mut character_controller_query: Query<&mut KinematicCharacterController, With<Player>>,
+    mut player_transform_query: Query<&mut Transform, (With<Player>, Without<Camera>)>,
     time: Res<Time>,
 ) {
+    let mut character_controller = character_controller_query.single_mut();
     let mut player_transform = player_transform_query.single_mut();
-
     let time_delta_rotation = time.delta_seconds() * 2.0;
-    let time_delta_move = time_delta_rotation * 4.0;
 
+    let mut linvel = Vec3::ZERO;
+
+    if keys.pressed(KeyCode::W) {
+        linvel.z -= PLAYER_MOVE_VELOCITY;
+    }
+    if keys.pressed(KeyCode::S) {
+        linvel.z += PLAYER_MOVE_VELOCITY;
+    }
+    if keys.pressed(KeyCode::A) {
+        linvel.x -= PLAYER_MOVE_VELOCITY;
+    }
+    if keys.pressed(KeyCode::D) {
+        linvel.x += PLAYER_MOVE_VELOCITY;
+    }
     if keys.pressed(KeyCode::Q) {
         player_transform.rotate(Quat::from_rotation_y(time_delta_rotation));
     }
     if keys.pressed(KeyCode::E) {
         player_transform.rotate(Quat::from_rotation_y(-time_delta_rotation));
     }
-
-    if keys.pressed(KeyCode::W) {
-        let forward_vector = {
-            let mut forward_vector = player_transform.forward();
-            forward_vector.y = 0.0;
-            forward_vector.normalize() * time_delta_move
-        };
-        player_transform.translation += forward_vector;
+    if keys.pressed(KeyCode::Space) {
+        linvel.y += PLAYER_MOVE_VELOCITY * 5.0;
     }
-    if keys.pressed(KeyCode::S) {
-        let back_vector = {
-            let mut back_vector = player_transform.back();
-            back_vector.y = 0.0;
-            back_vector.normalize() * time_delta_move
-        };
-        player_transform.translation += back_vector;
-    }
-    if keys.pressed(KeyCode::A) {
-        let left_vector = player_transform.left() * time_delta_move;
-        player_transform.translation += left_vector;
-    }
-    if keys.pressed(KeyCode::D) {
-        let right_vector = player_transform.right() * time_delta_move;
-        player_transform.translation += right_vector;
-    }
+    character_controller.translation = Some(player_transform.rotation * linvel);
 }

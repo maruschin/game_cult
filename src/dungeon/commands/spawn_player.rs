@@ -19,8 +19,13 @@ impl Command for SpawnPlayer {
         if let Some(asset_server) = world.get_resource::<AssetServer>() {
             world.spawn((
                 Player,
-                RigidBody::Fixed,
-                Collider::capsule_y(0.0, 0.5),
+                RigidBody::KinematicPositionBased,
+                Collider::cylinder(0.5, 0.4),
+                KinematicCharacterController {
+                    offset: CharacterLength::Absolute(0.05),
+                    up: Vec3::Z,
+                    ..default()
+                },
                 SceneBundle {
                     scene: asset_server.load("models/Characters/character_barbarian.gltf#Scene0"),
                     transform: Transform::from_xyz(
