@@ -5,3 +5,6 @@ pub struct PlayerCamera;
 
 #[derive(Component)]
 pub struct Player;
+
+#[derive(Component)]
+pub struct Enemy;

@@ -15,6 +15,8 @@ use level::Level;
 use bevy::pbr::DirectionalLightShadowMap;
 use std::f32::consts::PI;
 
+use self::commands::SpawnEnemy;
+
 pub const DUNGEON_ROW: usize = 15;
 pub const DUNGEON_COLUMN: usize = 15;
 
@@ -31,7 +33,7 @@ impl Plugin for DungeonPlugin {
     }
 }
 
-fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
+fn setup(mut commands: Commands) {
     let Level {
         room_layer,
         wall_layer,
@@ -53,20 +55,14 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
         }
     }
 
-    // Spawn player
     if let Some(room) = room_layer.rooms.first() {
         let (i, j) = room.center();
         commands.add(SpawnPlayer::new((i * 4) as f32, 0.5, (j * 4) as f32));
     }
 
-    // barrel
     for room in room_layer.rooms.iter() {
         let (i, j) = room.center();
-        commands.spawn(SceneBundle {
-            scene: asset_server.load("models/barrel.gltf.glb#Scene0"),
-            transform: Transform::from_xyz((i * 4) as f32, 0.5, (j * 4) as f32),
-            ..default()
-        });
+        commands.add(SpawnEnemy::new((i * 4) as f32, 0.5, (j * 4) as f32));
     }
 
     // light
