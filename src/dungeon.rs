@@ -3,14 +3,14 @@
 mod commands;
 mod components;
 mod enums;
-mod map;
+mod level;
 
 use crate::prelude::*;
 
 use commands::{SpawnDoor, SpawnFloor, SpawnPlayer, SpawnWall};
 use components::Player;
 use enums::TileType;
-use map::Map;
+use level::Level;
 
 use bevy::pbr::DirectionalLightShadowMap;
 use std::f32::consts::PI;
@@ -32,10 +32,10 @@ impl Plugin for DungeonPlugin {
 }
 
 fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let Map {
+    let Level {
         room_layer,
         wall_layer,
-    } = Map::<DUNGEON_ROW, DUNGEON_COLUMN>::new();
+    } = Level::<DUNGEON_ROW, DUNGEON_COLUMN>::new();
 
     for (x, z, tile) in room_layer.layer.iter() {
         commands.add(SpawnFloor::new(x, 0.0, z, *tile));
