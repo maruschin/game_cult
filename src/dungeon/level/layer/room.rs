@@ -1,5 +1,5 @@
+use super::base::Layer;
 use crate::dungeon::enums::FloorType;
-use crate::dungeon::level::layer::Layer;
 use rand::{rngs::ThreadRng, Rng};
 use std::cmp::{max, min};
 use std::fmt;

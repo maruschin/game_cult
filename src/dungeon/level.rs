@@ -1,9 +1,7 @@
 mod layer;
-mod room_layer;
-mod wall_layer;
 
-pub use room_layer::RoomLayer;
-pub use wall_layer::WallLayer;
+pub use layer::room::RoomLayer;
+pub use layer::wall::WallLayer;
 
 pub struct Level<const COLUMN: usize, const ROW: usize> {
     pub room_layer: RoomLayer<COLUMN, ROW>,

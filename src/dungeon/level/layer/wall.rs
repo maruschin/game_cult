@@ -1,6 +1,7 @@
 use crate::dungeon::enums::{CornerType, DoorType, FloorType, TileType, WallType};
-use crate::dungeon::level::layer::Layer;
-use crate::dungeon::level::room_layer::RoomLayer;
+
+use super::base::Layer;
+use super::room::RoomLayer;
 
 pub struct WallLayer<const ROW: usize, const COLUMN: usize> {
     pub layer: Layer<TileType, ROW, COLUMN>,
