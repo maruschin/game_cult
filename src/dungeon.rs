@@ -8,7 +8,6 @@ mod level;
 use crate::prelude::*;
 
 use commands::{SpawnDoor, SpawnFloor, SpawnPlayer, SpawnWall};
-use components::Player;
 use enums::TileType;
 use level::Level;
 
@@ -26,7 +25,7 @@ impl Plugin for DungeonPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(DirectionalLightShadowMap { size: 512 })
             .add_systems(Startup, setup)
-            .add_systems(Update, (gizmos_system, camera_following_player));
+            .add_systems(Update, gizmos_system);
     }
 }
 
@@ -106,54 +105,4 @@ fn gizmos_system(mut gizmos: Gizmos) {
             );
         }
     }
-}
-
-fn camera_following_player(
-    mut camera_transform_query: Query<&mut Transform, With<Camera>>,
-    mut player_transform_query: Query<&Transform, (With<Player>, Without<Camera>)>,
-) {
-    let mut camera_transform = camera_transform_query.single_mut();
-    let player_transform = player_transform_query.single_mut();
-
-    camera_transform.translation =
-        player_transform.translation + player_transform.back() * 4.0 + player_transform.up() * 1.5;
-    camera_transform.rotation = player_transform.rotation;
-}
-
-const PLAYER_MOVE_VELOCITY: f32 = 0.2;
-
-fn move_player(
-    keys: Res<Input<KeyCode>>,
-    //mut character_controller_query: Query<&mut KinematicCharacterController, With<Player>>,
-    mut player_transform_query: Query<&mut Transform, (With<Player>, Without<Camera>)>,
-    time: Res<Time>,
-) {
-    //let mut character_controller = character_controller_query.single_mut();
-    let mut player_transform = player_transform_query.single_mut();
-    let time_delta_rotation = time.delta_seconds() * 2.0;
-
-    let mut linvel = Vec3::ZERO;
-
-    if keys.pressed(KeyCode::W) {
-        linvel.z -= PLAYER_MOVE_VELOCITY;
-    }
-    if keys.pressed(KeyCode::S) {
-        linvel.z += PLAYER_MOVE_VELOCITY;
-    }
-    if keys.pressed(KeyCode::A) {
-        linvel.x -= PLAYER_MOVE_VELOCITY;
-    }
-    if keys.pressed(KeyCode::D) {
-        linvel.x += PLAYER_MOVE_VELOCITY;
-    }
-    if keys.pressed(KeyCode::Q) {
-        player_transform.rotate(Quat::from_rotation_y(time_delta_rotation));
-    }
-    if keys.pressed(KeyCode::E) {
-        player_transform.rotate(Quat::from_rotation_y(-time_delta_rotation));
-    }
-    if keys.pressed(KeyCode::Space) {
-        linvel.y += PLAYER_MOVE_VELOCITY * 5.0;
-    }
-    //character_controller.translation = Some(player_transform.rotation * linvel);
 }

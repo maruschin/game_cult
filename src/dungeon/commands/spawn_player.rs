@@ -18,35 +18,50 @@ impl SpawnPlayer {
 impl Command for SpawnPlayer {
     fn apply(self, world: &mut World) {
         if let Some(asset_server) = world.get_resource::<AssetServer>() {
-            world.spawn((
-                Player,
-                CharacterControllerBundle::new(
-                    Collider::capsule(0.25, 0.5),
-                    Vector::NEG_Y * 9.81 * 2.0,
-                )
-                .with_movement(30.0, 0.92, 7.0, (30.0 as Scalar).to_radians()),
-                SceneBundle {
-                    scene: asset_server.load("models/characters/barbarian.glb#Scene0"),
-                    transform: Transform::from_xyz(
-                        self.position.x,
-                        self.position.y,
-                        self.position.z,
+            world
+                .spawn((
+                    Player,
+                    CharacterControllerBundle::new(
+                        Collider::capsule(0.25, 0.5),
+                        Vector::NEG_Y * 9.81 * 2.0,
+                    )
+                    .with_movement(
+                        30.0,
+                        0.92,
+                        7.0,
+                        (30.0 as Scalar).to_radians(),
                     ),
-                    ..default()
-                },
-            ));
-
-            world.spawn((
-                PlayerCamera,
-                Camera3dBundle {
-                    projection: PerspectiveProjection {
-                        fov: 75.0_f32.to_radians(),
+                    SceneBundle {
+                        scene: asset_server.load("models/characters/barbarian.glb#Scene0"),
+                        transform: Transform::from_xyz(
+                            self.position.x,
+                            self.position.y,
+                            self.position.z,
+                        ),
                         ..default()
-                    }
-                    .into(),
-                    ..default()
-                },
-            ));
+                    },
+                ))
+                .with_children(|parent| {
+                    parent.spawn((
+                        PlayerCamera,
+                        LookTransformBundle {
+                            transform: LookTransform::new(
+                                Vec3::new(2.0, 5.0, 5.0),
+                                Vec3::ZERO,
+                                Vec3::Y,
+                            ),
+                            smoother: Smoother::new(0.9), // Value between 0.0 and 1.0, higher is smoother.
+                        },
+                        Camera3dBundle {
+                            projection: PerspectiveProjection {
+                                fov: 75.0_f32.to_radians(),
+                                ..default()
+                            }
+                            .into(),
+                            ..default()
+                        },
+                    ));
+                });
         }
     }
 }

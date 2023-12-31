@@ -1,4 +1,3 @@
-mod camera;
 mod character;
 mod dungeon;
 mod main_menu;
@@ -7,11 +6,13 @@ mod prelude {
     pub use bevy::ecs::system::Command;
     pub use bevy::prelude::*;
     pub use bevy_xpbd_3d::prelude::*;
+    pub use smooth_bevy_cameras::{LookTransform, LookTransformBundle, Smoother};
 }
 
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use character::CharacterControllerPlugin;
 use dungeon::DungeonPlugin;
+use smooth_bevy_cameras::LookTransformPlugin;
 //use main_menu::MainMenuPlugin;
 use prelude::*;
 
@@ -27,6 +28,7 @@ fn main() {
         .add_plugins(LogDiagnosticsPlugin::default())
         .add_plugins(FrameTimeDiagnosticsPlugin::default())
         .add_plugins(PhysicsPlugins::default())
+        .add_plugins(LookTransformPlugin)
         .add_plugins(CharacterControllerPlugin)
         .add_plugins(DungeonPlugin)
         //.add_plugins(MainMenuPlugin)
