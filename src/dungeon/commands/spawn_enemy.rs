@@ -22,7 +22,7 @@ impl Command for SpawnEnemy {
                 RigidBody::Dynamic,
                 Collider::cylinder(0.5, 0.4),
                 SceneBundle {
-                    scene: asset_server.load("models/barrel.gltf.glb#Scene0"),
+                    scene: asset_server.load("models/barrel_large.glb#Scene0"),
                     transform: Transform::from_xyz(
                         self.position.x,
                         self.position.y,

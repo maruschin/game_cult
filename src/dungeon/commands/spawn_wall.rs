@@ -19,7 +19,7 @@ impl SpawnWall {
 impl Command for SpawnWall {
     fn apply(self, world: &mut World) {
         if let Some(asset_server) = world.get_resource::<AssetServer>() {
-            let wall_asset_path = "models/wallSingle.gltf.glb#Scene0";
+            let wall_asset_path = "models/wall/wall.glb#Scene0";
             let Vec3 { x, y, z } = self.position;
             let mut batch: Vec<SceneBundle> = vec![];
 

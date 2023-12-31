@@ -18,8 +18,8 @@ impl SpawnFloor {
 fn floor_model(floor_type: FloorType) -> Option<String> {
     match floor_type {
         | FloorType::Empthy => None,
-        | FloorType::Room => Some("models/tileBrickB_medium.gltf.glb#Scene0".to_string()),
-        | FloorType::Path => Some("models/tileBrickA_medium.gltf.glb#Scene0".to_string()),
+        | FloorType::Room => Some("models/floor/floor_tile_large.glb#Scene0".to_string()),
+        | FloorType::Path => Some("models/floor/floor_tile_large.glb#Scene0".to_string()),
     }
 }
 
@@ -33,12 +33,12 @@ impl Command for SpawnFloor {
                             scene: asset_server.load(floor_model(floor_type).unwrap()),
                             transform: Transform::from_xyz(
                                 self.position.x,
-                                self.position.y - 1.0,
+                                self.position.y - 0.1,
                                 self.position.z,
                             ),
                             ..default()
                         },
-                        Collider::cuboid(2.0, 1.0, 2.0),
+                        Collider::cuboid(2.0, 0.2, 2.0),
                     ));
                 }
                 | FloorType::Empthy => {
