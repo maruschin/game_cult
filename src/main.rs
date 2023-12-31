@@ -1,12 +1,16 @@
+mod camera;
+mod character;
 mod dungeon;
 mod main_menu;
 mod prelude {
+    pub use super::character::*;
     pub use bevy::ecs::system::Command;
     pub use bevy::prelude::*;
-    pub use bevy_rapier3d::prelude::*;
+    pub use bevy_xpbd_3d::prelude::*;
 }
 
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
+use character::CharacterControllerPlugin;
 use dungeon::DungeonPlugin;
 //use main_menu::MainMenuPlugin;
 use prelude::*;
@@ -22,8 +26,8 @@ fn main() {
         }))
         .add_plugins(LogDiagnosticsPlugin::default())
         .add_plugins(FrameTimeDiagnosticsPlugin::default())
-        .add_plugins(RapierPhysicsPlugin::<NoUserData>::default())
-        .add_plugins(RapierDebugRenderPlugin::default())
+        .add_plugins(PhysicsPlugins::default())
+        .add_plugins(CharacterControllerPlugin)
         .add_plugins(DungeonPlugin)
         //.add_plugins(MainMenuPlugin)
         .run();

@@ -28,18 +28,15 @@ impl Command for SpawnFloor {
         if let Some(asset_server) = world.get_resource::<AssetServer>() {
             match self.floor_type {
                 | floor_type @ FloorType::Room | floor_type @ FloorType::Path => {
-                    world.spawn((
-                        SceneBundle {
-                            scene: asset_server.load(floor_model(floor_type).unwrap()),
-                            transform: Transform::from_xyz(
-                                self.position.x,
-                                self.position.y - 0.1,
-                                self.position.z,
-                            ),
-                            ..default()
-                        },
-                        Collider::cuboid(2.0, 0.2, 2.0),
-                    ));
+                    world.spawn((SceneBundle {
+                        scene: asset_server.load(floor_model(floor_type).unwrap()),
+                        transform: Transform::from_xyz(
+                            self.position.x,
+                            self.position.y,
+                            self.position.z,
+                        ),
+                        ..default()
+                    },));
                 }
                 | FloorType::Empthy => {
                     let mesh_handle =
@@ -53,15 +50,12 @@ impl Command for SpawnFloor {
                         },
                     );
 
-                    world.spawn((
-                        PbrBundle {
-                            mesh: mesh_handle,
-                            material: material_handle,
-                            transform: Transform::from_xyz(self.position.x, 2.0, self.position.z),
-                            ..default()
-                        },
-                        Collider::cuboid(2.0, 2.0, 2.0),
-                    ));
+                    world.spawn((PbrBundle {
+                        mesh: mesh_handle,
+                        material: material_handle,
+                        transform: Transform::from_xyz(self.position.x, 2.0, self.position.z),
+                        ..default()
+                    },));
                 }
             }
         }

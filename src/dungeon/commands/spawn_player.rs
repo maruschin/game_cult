@@ -1,6 +1,7 @@
 use crate::prelude::*;
 
 use crate::dungeon::components::{Player, PlayerCamera};
+use bevy_xpbd_3d::math::{Scalar, Vector};
 
 pub struct SpawnPlayer {
     pub position: Vec3,
@@ -19,13 +20,11 @@ impl Command for SpawnPlayer {
         if let Some(asset_server) = world.get_resource::<AssetServer>() {
             world.spawn((
                 Player,
-                RigidBody::KinematicPositionBased,
-                Collider::cylinder(0.5, 0.4),
-                KinematicCharacterController {
-                    offset: CharacterLength::Absolute(0.05),
-                    up: Vec3::Z,
-                    ..default()
-                },
+                CharacterControllerBundle::new(
+                    Collider::capsule(0.25, 0.5),
+                    Vector::NEG_Y * 9.81 * 2.0,
+                )
+                .with_movement(30.0, 0.92, 7.0, (30.0 as Scalar).to_radians()),
                 SceneBundle {
                     scene: asset_server.load("models/characters/barbarian.glb#Scene0"),
                     transform: Transform::from_xyz(

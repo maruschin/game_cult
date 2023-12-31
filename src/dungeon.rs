@@ -26,14 +26,15 @@ impl Plugin for DungeonPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(DirectionalLightShadowMap { size: 512 })
             .add_systems(Startup, setup)
-            .add_systems(
-                Update,
-                (gizmos_system, move_player, camera_following_player),
-            );
+            .add_systems(Update, (gizmos_system, camera_following_player));
     }
 }
 
-fn setup(mut commands: Commands) {
+fn setup(
+    mut commands: Commands,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+    mut meshes: ResMut<Assets<Mesh>>,
+) {
     let Level {
         room_layer,
         wall_layer,
@@ -54,6 +55,20 @@ fn setup(mut commands: Commands) {
             }
         }
     }
+
+    let cube_mesh = meshes.add(Mesh::from(shape::Cube { size: 1.0 }));
+
+    // Ground
+    commands.spawn((
+        PbrBundle {
+            mesh: cube_mesh.clone(),
+            material: materials.add(Color::rgb(0.7, 0.7, 0.8).into()),
+            transform: Transform::from_xyz(0.0, -1.0, 0.0).with_scale(Vec3::new(100.0, 1.0, 100.0)),
+            ..default()
+        },
+        RigidBody::Static,
+        Collider::cuboid(1.0, 1.0, 1.0),
+    ));
 
     if let Some(room) = room_layer.rooms.first() {
         let (i, j) = room.center();
@@ -109,11 +124,11 @@ const PLAYER_MOVE_VELOCITY: f32 = 0.2;
 
 fn move_player(
     keys: Res<Input<KeyCode>>,
-    mut character_controller_query: Query<&mut KinematicCharacterController, With<Player>>,
+    //mut character_controller_query: Query<&mut KinematicCharacterController, With<Player>>,
     mut player_transform_query: Query<&mut Transform, (With<Player>, Without<Camera>)>,
     time: Res<Time>,
 ) {
-    let mut character_controller = character_controller_query.single_mut();
+    //let mut character_controller = character_controller_query.single_mut();
     let mut player_transform = player_transform_query.single_mut();
     let time_delta_rotation = time.delta_seconds() * 2.0;
 
@@ -140,5 +155,5 @@ fn move_player(
     if keys.pressed(KeyCode::Space) {
         linvel.y += PLAYER_MOVE_VELOCITY * 5.0;
     }
-    character_controller.translation = Some(player_transform.rotation * linvel);
+    //character_controller.translation = Some(player_transform.rotation * linvel);
 }
