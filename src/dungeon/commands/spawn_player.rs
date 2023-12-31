@@ -27,7 +27,7 @@ impl Command for SpawnPlayer {
                     ..default()
                 },
                 SceneBundle {
-                    scene: asset_server.load("models/Characters/character_barbarian.gltf#Scene0"),
+                    scene: asset_server.load("models/characters/barbarian.glb#Scene0"),
                     transform: Transform::from_xyz(
                         self.position.x,
                         self.position.y,
