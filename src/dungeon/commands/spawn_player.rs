@@ -28,6 +28,8 @@ impl Command for SpawnPlayer {
                     .with_movement(
                         30.0,
                         0.92,
+                        15.0,
+                        0.92,
                         7.0,
                         (30.0 as Scalar).to_radians(),
                     ),

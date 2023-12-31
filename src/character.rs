@@ -16,6 +16,7 @@ impl Plugin for CharacterControllerPlugin {
                     apply_gravity,
                     movement,
                     apply_movement_damping,
+                    apply_rotation_damping,
                 )
                     .chain(),
             )
@@ -31,6 +32,7 @@ impl Plugin for CharacterControllerPlugin {
 #[derive(Event)]
 pub enum MovementAction {
     Move(Vector2),
+    Rotate(i8),
     Jump,
 }
 
@@ -46,9 +48,17 @@ pub struct Grounded;
 #[derive(Component)]
 pub struct MovementAcceleration(Scalar);
 
+/// The angular acceleration used for character rotation.
+#[derive(Component)]
+pub struct AngularAcceleration(Scalar);
+
 /// The damping factor used for slowing down movement.
 #[derive(Component)]
 pub struct MovementDampingFactor(Scalar);
+
+/// The damping factor used for slowing down rotation.
+#[derive(Component)]
+pub struct AngularDampingFactor(Scalar);
 
 /// The strength of a jump.
 #[derive(Component)]
@@ -79,22 +89,28 @@ pub struct CharacterControllerBundle {
 /// A bundle that contains components for character movement.
 #[derive(Bundle)]
 pub struct MovementBundle {
-    acceleration: MovementAcceleration,
-    damping: MovementDampingFactor,
+    movement_acceleration: MovementAcceleration,
+    movement_damping: MovementDampingFactor,
+    angular_acceleration: AngularAcceleration,
+    angular_damping: AngularDampingFactor,
     jump_impulse: JumpImpulse,
     max_slope_angle: MaxSlopeAngle,
 }
 
 impl MovementBundle {
     pub const fn new(
-        acceleration: Scalar,
-        damping: Scalar,
+        movement_acceleration: Scalar,
+        movement_damping: Scalar,
+        angular_acceleration: Scalar,
+        angular_damping: Scalar,
         jump_impulse: Scalar,
         max_slope_angle: Scalar,
     ) -> Self {
         Self {
-            acceleration: MovementAcceleration(acceleration),
-            damping: MovementDampingFactor(damping),
+            movement_acceleration: MovementAcceleration(movement_acceleration),
+            movement_damping: MovementDampingFactor(movement_damping),
+            angular_acceleration: AngularAcceleration(angular_acceleration),
+            angular_damping: AngularDampingFactor(angular_damping),
             jump_impulse: JumpImpulse(jump_impulse),
             max_slope_angle: MaxSlopeAngle(max_slope_angle),
         }
@@ -103,7 +119,7 @@ impl MovementBundle {
 
 impl Default for MovementBundle {
     fn default() -> Self {
-        Self::new(30.0, 0.9, 7.0, PI * 0.45)
+        Self::new(30.0, 0.9, 15.0, 0.9, 7.0, PI * 0.45)
     }
 }
 
@@ -131,12 +147,21 @@ impl CharacterControllerBundle {
 
     pub fn with_movement(
         mut self,
-        acceleration: Scalar,
-        damping: Scalar,
+        movement_acceleration: Scalar,
+        movement_damping: Scalar,
+        angular_acceleration: Scalar,
+        angular_damping: Scalar,
         jump_impulse: Scalar,
         max_slope_angle: Scalar,
     ) -> Self {
-        self.movement = MovementBundle::new(acceleration, damping, jump_impulse, max_slope_angle);
+        self.movement = MovementBundle::new(
+            movement_acceleration,
+            movement_damping,
+            angular_acceleration,
+            angular_damping,
+            jump_impulse,
+            max_slope_angle,
+        );
         self
     }
 }
@@ -146,10 +171,15 @@ fn keyboard_input(
     mut movement_event_writer: EventWriter<MovementAction>,
     keyboard_input: Res<Input<KeyCode>>,
 ) {
-    let up = keyboard_input.any_pressed([KeyCode::W, KeyCode::Up]);
-    let down = keyboard_input.any_pressed([KeyCode::S, KeyCode::Down]);
-    let left = keyboard_input.any_pressed([KeyCode::A, KeyCode::Left]);
-    let right = keyboard_input.any_pressed([KeyCode::D, KeyCode::Right]);
+    let up = keyboard_input.any_pressed([KeyCode::W]);
+    let down = keyboard_input.any_pressed([KeyCode::S]);
+    let left = keyboard_input.any_pressed([KeyCode::A]);
+    let right = keyboard_input.any_pressed([KeyCode::D]);
+
+    let rotation_left = keyboard_input.any_pressed([KeyCode::Q]);
+    let rotation_right = keyboard_input.any_pressed([KeyCode::E]);
+
+    let rotation = rotation_left as i8 - rotation_right as i8;
 
     let horizontal = right as i8 - left as i8;
     let vertical = up as i8 - down as i8;
@@ -157,6 +187,10 @@ fn keyboard_input(
 
     if direction != Vector2::ZERO {
         movement_event_writer.send(MovementAction::Move(direction));
+    }
+
+    if rotation != 0 {
+        movement_event_writer.send(MovementAction::Rotate(rotation));
     }
 
     if keyboard_input.just_pressed(KeyCode::Space) {
@@ -231,8 +265,10 @@ fn movement(
     mut movement_event_reader: EventReader<MovementAction>,
     mut controllers: Query<(
         &MovementAcceleration,
+        &AngularAcceleration,
         &JumpImpulse,
         &mut LinearVelocity,
+        &mut AngularVelocity,
         Has<Grounded>,
     )>,
 ) {
@@ -241,13 +277,22 @@ fn movement(
     let delta_time = time.delta_seconds_f64().adjust_precision();
 
     for event in movement_event_reader.read() {
-        for (movement_acceleration, jump_impulse, mut linear_velocity, is_grounded) in
-            &mut controllers
+        for (
+            movement_acceleration,
+            angular_acceleration,
+            jump_impulse,
+            mut linear_velocity,
+            mut angular_velocity,
+            is_grounded,
+        ) in &mut controllers
         {
             match event {
                 | MovementAction::Move(direction) => {
                     linear_velocity.x += direction.x * movement_acceleration.0 * delta_time;
                     linear_velocity.z -= direction.y * movement_acceleration.0 * delta_time;
+                }
+                | MovementAction::Rotate(direction) => {
+                    angular_velocity.y += (*direction as f32) * angular_acceleration.0 * delta_time;
                 }
                 | MovementAction::Jump => {
                     if is_grounded {
@@ -279,6 +324,13 @@ fn apply_movement_damping(mut query: Query<(&MovementDampingFactor, &mut LinearV
         // We could use `LinearDamping`, but we don't want to dampen movement along the Y axis
         linear_velocity.x *= damping_factor.0;
         linear_velocity.z *= damping_factor.0;
+    }
+}
+
+/// Slows down rotation in the Y plane.
+fn apply_rotation_damping(mut query: Query<(&AngularDampingFactor, &mut AngularVelocity)>) {
+    for (damping_factor, mut angular_velocity) in &mut query {
+        angular_velocity.y *= damping_factor.0;
     }
 }
 
