@@ -1,5 +1,6 @@
 use bevy::{ecs::query::Has, prelude::*};
 use bevy_xpbd_3d::{math::*, prelude::*, SubstepSchedule, SubstepSet};
+use smooth_bevy_cameras::{LookAngles, LookTransform};
 
 pub struct CharacterControllerPlugin;
 
@@ -31,7 +32,7 @@ impl Plugin for CharacterControllerPlugin {
 /// An event sent for a movement input action.
 #[derive(Event)]
 pub enum MovementAction {
-    Move(Vector2),
+    Move(Vector3),
     Rotate(i8),
     Jump,
 }
@@ -183,9 +184,10 @@ fn keyboard_input(
 
     let horizontal = right as i8 - left as i8;
     let vertical = up as i8 - down as i8;
-    let direction = Vector2::new(horizontal as Scalar, vertical as Scalar).clamp_length_max(1.0);
+    let direction = Vector3::new(horizontal as Scalar, 0.0 as Scalar, -vertical as Scalar)
+        .clamp_length_max(1.0);
 
-    if direction != Vector2::ZERO {
+    if direction != Vector3::ZERO {
         movement_event_writer.send(MovementAction::Move(direction));
     }
 
@@ -217,7 +219,7 @@ fn gamepad_input(
 
         if let (Some(x), Some(y)) = (axes.get(axis_lx), axes.get(axis_ly)) {
             movement_event_writer.send(MovementAction::Move(
-                Vector2::new(x as Scalar, y as Scalar).clamp_length_max(1.0),
+                Vector3::new(x as Scalar, 0.0 as Scalar, -y as Scalar).clamp_length_max(1.0),
             ));
         }
 
@@ -259,37 +261,45 @@ fn update_grounded(
     }
 }
 
-/// Responds to [`MovementAction`] events and moves character controllers accordingly.
 fn movement(
     time: Res<Time>,
     mut movement_event_reader: EventReader<MovementAction>,
     mut controllers: Query<(
         &MovementAcceleration,
+        &MovementDampingFactor,
         &AngularAcceleration,
+        &AngularDampingFactor,
         &JumpImpulse,
+        &Transform,
         &mut LinearVelocity,
         &mut AngularVelocity,
         Has<Grounded>,
     )>,
 ) {
-    // Precision is adjusted so that the example works with
-    // both the `f32` and `f64` features. Otherwise you don't need this.
     let delta_time = time.delta_seconds_f64().adjust_precision();
 
     for event in movement_event_reader.read() {
         for (
             movement_acceleration,
+            movement_damping_factor,
             angular_acceleration,
+            angular_damping_factor,
             jump_impulse,
+            transform,
             mut linear_velocity,
             mut angular_velocity,
             is_grounded,
         ) in &mut controllers
         {
+            let rotation_matrix = Mat3::from_quat(transform.rotation);
             match event {
                 | MovementAction::Move(direction) => {
-                    linear_velocity.x += direction.x * movement_acceleration.0 * delta_time;
-                    linear_velocity.z -= direction.y * movement_acceleration.0 * delta_time;
+                    let new_dir = rotation_matrix.mul_vec3(*direction)
+                        * movement_acceleration.0
+                        * movement_damping_factor.0
+                        * delta_time;
+                    linear_velocity.x += new_dir.x;
+                    linear_velocity.z += new_dir.z;
                 }
                 | MovementAction::Rotate(direction) => {
                     angular_velocity.y += (*direction as f32) * angular_acceleration.0 * delta_time;
@@ -304,33 +314,27 @@ fn movement(
     }
 }
 
-/// Applies [`ControllerGravity`] to character controllers.
 fn apply_gravity(
     time: Res<Time>,
     mut controllers: Query<(&ControllerGravity, &mut LinearVelocity)>,
 ) {
-    // Precision is adjusted so that the example works with
-    // both the `f32` and `f64` features. Otherwise you don't need this.
     let delta_time = time.delta_seconds_f64().adjust_precision();
 
-    for (gravity, mut linear_velocity) in &mut controllers {
-        linear_velocity.0 += gravity.0 * delta_time;
+    for (gravity, mut velocity) in &mut controllers {
+        velocity.0 += gravity.0 * delta_time;
     }
 }
 
-/// Slows down movement in the XZ plane.
 fn apply_movement_damping(mut query: Query<(&MovementDampingFactor, &mut LinearVelocity)>) {
-    for (damping_factor, mut linear_velocity) in &mut query {
-        // We could use `LinearDamping`, but we don't want to dampen movement along the Y axis
-        linear_velocity.x *= damping_factor.0;
-        linear_velocity.z *= damping_factor.0;
+    for (damping_factor, mut velocity) in &mut query {
+        velocity.x *= 1.0 - damping_factor.0;
+        velocity.z *= 1.0 - damping_factor.0;
     }
 }
 
-/// Slows down rotation in the Y plane.
 fn apply_rotation_damping(mut query: Query<(&AngularDampingFactor, &mut AngularVelocity)>) {
-    for (damping_factor, mut angular_velocity) in &mut query {
-        angular_velocity.y *= damping_factor.0;
+    for (damping_factor, mut velocity) in &mut query {
+        velocity.y *= 1.0 - damping_factor.0;
     }
 }
 

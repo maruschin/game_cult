@@ -26,10 +26,10 @@ impl Command for SpawnPlayer {
                         Vector::NEG_Y * 9.81 * 2.0,
                     )
                     .with_movement(
+                        500.0,
+                        0.1,
                         30.0,
-                        0.92,
-                        15.0,
-                        0.92,
+                        0.1,
                         7.0,
                         (30.0 as Scalar).to_radians(),
                     ),
